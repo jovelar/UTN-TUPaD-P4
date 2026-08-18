@@ -29,6 +29,10 @@ public class Categoria extends Base {
     @Builder.Default
     private Set<Producto> productos = new HashSet<>();
 
+    //Ya esta definido en Base.java
+    //@Builder.Default
+    //private Boolean eliminado=false;
+
     public void addProducto(Producto producto) {
         if (!productos.add(producto)) {
             throw new IllegalArgumentException("Producto ya cargado en la categoría");
