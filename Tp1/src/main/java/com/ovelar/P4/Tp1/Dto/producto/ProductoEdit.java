@@ -11,7 +11,7 @@ public record ProductoEdit(
         Integer stock,
         String imagen,
         Boolean disponible,
-        long idCategoria
+        Long idCategoria
 ) {
 
     //Solo se aceptan los parametros nuevos, se valida primero si el valor de reemplazo no es null
