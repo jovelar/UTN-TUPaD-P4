@@ -5,6 +5,7 @@ import com.ovelar.P4.Tp1.Interfaces.Calculable;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true, exclude = {"detalles"})
+//Por si se da la baja logica
+@SQLRestriction("eliminado = false")
 @EqualsAndHashCode(callSuper = true)
 public class Pedido extends Base implements Calculable {
 

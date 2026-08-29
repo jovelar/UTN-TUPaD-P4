@@ -3,6 +3,7 @@ package com.ovelar.P4.Tp1.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "detalles_pedido")
@@ -12,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
+//Por si se da la baja logica
+@SQLRestriction("eliminado = false")
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class DetallePedido extends Base {
 

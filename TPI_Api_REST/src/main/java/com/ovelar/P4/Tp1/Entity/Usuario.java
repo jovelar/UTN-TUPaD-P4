@@ -4,6 +4,7 @@ import com.ovelar.P4.Tp1.Enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,9 @@ import java.util.Set;
 @SuperBuilder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(callSuper = true, exclude = {"pedidos"})
+
+//Por si se da la baja logica
+@SQLRestriction("eliminado = false")
 public class Usuario extends Base {
 
     @Column(name = "nombre",nullable = false, length = 50)

@@ -3,6 +3,7 @@ package com.ovelar.P4.Tp1.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true, exclude = {"productos"})
+//Por si se da la baja logica
+@SQLRestriction("eliminado = false")
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Categoria extends Base {
 
