@@ -2,6 +2,7 @@ package com.ovelar.P4.Tp1.Exceptions;
 
 import com.ovelar.P4.Tp1.Dto.error.ErrorDTO;
 import com.ovelar.P4.Tp1.Dto.error.ErrorDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +32,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(error);
+    }
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorDTO> handleNotFound(NullPointerException ex) {
+        ErrorDTO errorDTO = ErrorDTO.simple(HttpStatus.NOT_FOUND.value(),
+                "Recurso no encontrado", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDTO> handleGeneric(Exception ex) {
+        ErrorDTO errorDTO = ErrorDTO.simple(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Error interno del servidor", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
     }
 }
 

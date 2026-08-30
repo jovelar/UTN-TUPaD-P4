@@ -12,4 +12,5 @@ public interface UsuarioService {
     public List<UsuarioDto> findAll();
     public UsuarioDto update(UsuarioEdit usuarioEdit, Long idUsuario);
     public void deleteById(Long id);
+    public UsuarioDto findByMail(String mail);
 }

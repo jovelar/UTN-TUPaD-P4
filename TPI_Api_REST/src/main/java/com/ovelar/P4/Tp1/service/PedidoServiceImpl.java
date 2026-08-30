@@ -31,6 +31,8 @@ public class PedidoServiceImpl implements PedidoService {
                 .formaPago(formaPago)
                 .build();
 
+        pedido = pedidoRepository.save(pedido);
+
         usuario.addPedido(pedido);
         usuarioRepository.save(usuario);
 

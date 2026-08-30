@@ -28,6 +28,10 @@ public class UsuarioServiceImpl implements  UsuarioService {
         Usuario usuario = usuarioRepository.findById(id).orElseThrow(()->new NullPointerException("No se encontro usuario con el id "+id));
         return UsuarioDto.toDto(usuario);
     }
+    public UsuarioDto findByMail(String mail) {
+        Usuario usuario = usuarioRepository.findByMail(mail).orElseThrow(()->new NullPointerException("No se encontro usuario con el email "+mail));
+        return UsuarioDto.toDto(usuario);
+    }
 
     @Override
     public List<UsuarioDto> findAll() {
@@ -51,4 +55,5 @@ public class UsuarioServiceImpl implements  UsuarioService {
         usuarioRepository.save(usuario);
 
     }
+
 }

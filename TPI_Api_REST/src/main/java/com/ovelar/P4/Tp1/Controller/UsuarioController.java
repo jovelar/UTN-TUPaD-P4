@@ -31,6 +31,11 @@ public class UsuarioController {
         return usuarioService.findAll();
     }
 
+    @GetMapping("/buscar")
+    public UsuarioDto buscarPorMail(@RequestParam String mail) {
+        return usuarioService.findByMail(mail);
+    }
+
     @PutMapping("/{id}")
     public UsuarioDto actualizar(@PathVariable Long id,
                                  @RequestBody UsuarioEdit usuarioEdit){
