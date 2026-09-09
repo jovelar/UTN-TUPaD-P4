@@ -1,0 +1,33 @@
+from cooperativa import (TipoMineral as TM, Mineral, Cereal, CosechaGruesa,
+                         CosechaFina, Pastura, Lote)
+_c = _o = 0
+def check(d, c):
+    global _c, _o; _c += 1; _o += 1 if c else 0
+    print(f"  [{'OK' if c else 'FALLA'}] {d}")
+def main():
+    print("=== Ejercicio 4: Cooperativa agricola ===\n")
+    nitro = Mineral("Nitrogeno", TM.PRIMARIO); fosf = Mineral("Fosforo", TM.PRIMARIO)
+    pot = Mineral("Potasio", TM.SECUNDARIO); cal = Mineral("Calcio", TM.SECUNDARIO)
+    maiz = CosechaGruesa("Maiz"); alfalfa = Pastura("Alfalfa"); trebol = Pastura("Trebol")
+    check("Maiz es Cereal", isinstance(maiz, Cereal))
+    check("Maiz clasifica Cosecha gruesa", maiz.clasificacion() == "Cosecha gruesa")
+    check("Alfalfa es Pastura", isinstance(alfalfa, Pastura))
+    maiz.requiere_mineral(nitro); maiz.requiere_mineral(pot); alfalfa.requiere_mineral(pot)
+    le = Lote("Lote-A"); le.agregar_mineral(nitro); le.agregar_mineral(pot)
+    check("Lote con primario es ESPECIAL", le.es_especial)
+    lc = Lote("Lote-B"); lc.agregar_mineral(pot); lc.agregar_mineral(cal)
+    check("Lote solo secundarios es COMUN", not lc.es_especial)
+    lc.agregar_mineral(fosf)
+    check("Lote comun -> especial al agregar primario (derivado)", lc.es_especial)
+    check("Lote-A satisface Maiz", le.satisface(maiz))
+    soja = CosechaGruesa("Soja"); soja.requiere_mineral(cal)
+    check("Lote-A NO satisface Soja (falta calcio)", not le.satisface(soja))
+    check("Lote-A satisface Alfalfa (sin pastura previa)", le.satisface(alfalfa))
+    check("Se siembra Alfalfa", le.sembrar(alfalfa))
+    trebol.requiere_mineral(pot)
+    check("Lote-A NO satisface Trebol (pastura previa)", not le.satisface(trebol))
+    check("No se siembra Trebol tras Alfalfa", not le.sembrar(trebol))
+    check("Lote-A todavia satisface Maiz", le.satisface(maiz))
+    check("Historico tiene 1 entrada", len(le.historico_siembra) == 1)
+    print(f"\n=== Resultado Ej.4: {_o}/{_c} verificaciones OK ===")
+main()
