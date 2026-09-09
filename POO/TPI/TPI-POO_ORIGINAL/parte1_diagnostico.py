@@ -24,6 +24,12 @@ class Figura:
         self._color = color
         self._construida = True   # marca de que Figura.__init__ realmente corrió
 
+    # >>> getters preventivos SIN lógica (ceremonia de Java) <<<
+    def getNombre(self):
+        return self._nombre
+
+    def getColor(self):
+        return self._color
 
     def area(self):
         return 0.0
@@ -32,7 +38,11 @@ class Figura:
 class Lado:
     def __init__(self, longitud):
         self._longitud = longitud
-    @property
+
+    # >>> getter/setter con lógica de validación (estilo Java bean) <<<
+    def getLongitud(self):
+        return self._longitud
+
     def setLongitud(self, valor):
         if valor <= 0:
             raise ValueError("La longitud debe ser positiva")
@@ -41,13 +51,17 @@ class Lado:
 
 class Poligono(Figura):
 
-    def __init__(self, nombre, color, lados=None, observaciones=None):
-        super().__init__(nombre,color)
+    # >>> atributo de clase mutable: un "static" accidental compartido <<<
+    catalogo = []
+
+    # >>> argumento por defecto mutable (lados y observaciones) <<<
+    def __init__(self, nombre, color, lados=[], observaciones=[]):
+        # >>> super().__init__() olvidado: se re-asignan los atributos a mano <<<
         self._nombre = nombre
         self._color = color
+        # >>> se guarda el ALIAS de la lista recibida, sin copiarla <<<
         self._lados = lados
-        self._observaciones = List(observaciones) if not None else []
-        self._catalogo=[]
+        self._observaciones = observaciones
         Poligono.catalogo.append(self)
 
     def lados_esperados(self):
@@ -60,7 +74,7 @@ class Poligono(Figura):
             total = total + l.getLongitud()
         return total
 
-
+    # >>> el type hint miente (-> int y devuelve str) y el "@Override" no existe <<<
     def area(self) -> int:
         return "area sin calcular"
 
@@ -69,7 +83,7 @@ class Poligono(Figura):
 
     def getLados(self):
         # devuelve la lista interna tal cual (el llamador puede mutarla desde afuera)
-        return self._lados.copy()
+        return self._lados
 
 
 # >>> sobrecarga de constructor estilo Java: un __init__ con ramas isinstance <<<
