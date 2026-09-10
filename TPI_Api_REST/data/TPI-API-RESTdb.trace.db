@@ -1,0 +1,8 @@
+2026-08-29 05:37:08.231599-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]NOMBRE"
+Syntax error in SQL statement "[*]NOMBRE"; SQL statement:
+NOMBRE [42000-240]
+2026-08-29 05:37:08.670665-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]NOMBRE"
+Syntax error in SQL statement "[*]NOMBRE"; SQL statement:
+NOMBRE [42000-240]
