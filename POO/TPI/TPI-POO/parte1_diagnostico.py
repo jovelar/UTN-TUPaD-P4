@@ -23,7 +23,8 @@ class Figura:
         self._nombre = nombre
         self._color = color
         self._construida = True   # marca de que Figura.__init__ realmente corrió
-
+        
+    #Se eliminaron getters y setters innecesarios, uso de anotacion property para area
 
     def area(self):
         return 0.0
@@ -32,6 +33,17 @@ class Figura:
 class Lado:
     def __init__(self, longitud):
         self._longitud = longitud
+    
+    #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
+    #antes de asignar
+    
+    #Antes
+    def setLongitud(self, valor):
+        if valor <= 0:
+            raise ValueError("La longitud debe ser positiva")
+        self._longitud = valor
+    
+    #Despues
     @property
     def setLongitud(self, valor):
         if valor <= 0:
@@ -40,14 +52,14 @@ class Lado:
 
 
 class Poligono(Figura):
-
+    #Se incorporo catalogo como aatributo de la clase
     def __init__(self, nombre, color, lados=None, observaciones=None):
+        #Uso de super
         super().__init__(nombre,color)
-        self._nombre = nombre
-        self._color = color
-        self._lados = lados
-        self._observaciones = List(observaciones) if not None else []
-        self._catalogo=[]
+        #se realiza una copia defensiva para desvincular
+        self._lados = list(lados) if lados is not None else []
+        self._observaciones = observaciones if observaciones is not None else []
+        self.catalogo = []
         Poligono.catalogo.append(self)
 
     def lados_esperados(self):
@@ -55,45 +67,46 @@ class Poligono(Figura):
 
     # >>> bucle acumulador manual en vez de comprehension <<<
     def perimetro(self):
-        total = 0
-        for l in self._lados:
-            total = total + l.getLongitud()
-        return total
+        return sum(l.getLongitud() for l in self._lados)
 
-
-    def area(self) -> int:
+    # >>> el type hint miente (-> int y devuelve str) y el "@Override" no existe <<<
+    def area(self) -> str:
         return "area sin calcular"
 
     def agregar_observacion(self, texto):
         self._observaciones.append(texto)
 
+
     def getLados(self):
-        # devuelve la lista interna tal cual (el llamador puede mutarla desde afuera)
-        return self._lados.copy()
+        #devuelve una copia
+        return list(self._lados)
 
 
 # >>> sobrecarga de constructor estilo Java: un __init__ con ramas isinstance <<<
+#Se agregaron constructores alternativos
 class Triangulo(Poligono):
-    def __init__(self, *args):
-        if len(args) == 3:
-            super().__init__(args[0], args[1], args[2])
-        elif len(args) == 1 and isinstance(args[0], list):
-            super().__init__("triángulo", "negro", args[0])
-        else:
-            super().__init__("triángulo", "negro", [])
+    def __init__(self, nombre="triángulo", color="negro", lados=None):
+        super().__init__(nombre, color, lados if lados is not None else [])
+
+    @classmethod
+    def desde_lista_lados(cls, lista_lados, nombre="triángulo", color="negro"):
+        return cls(nombre, color, lista_lados)
+
 
     def lados_esperados(self):
         return 3
 
 
+
+
 class Cuadrado(Poligono):
-    def __init__(self, *args):
-        if len(args) == 3:
-            super().__init__(args[0], args[1], args[2])
-        elif len(args) == 1 and isinstance(args[0], list):
-            super().__init__("cuadrado", "negro", args[0])
-        else:
-            super().__init__("cuadrado", "negro", [])
+    def __init__(self, nombre="cuadrado", color="negro", lados=None):
+        super().__init__(nombre, color, lados if lados is not None else [])
+    #Se agragaron constructores alternativos
+    @classmethod
+    def desde_lista_lados(cls, lista_lados, nombre="cuadrado", color="negro"):
+        return cls(nombre, color, lista_lados)
+
 
     def lados_esperados(self):
         return 4
