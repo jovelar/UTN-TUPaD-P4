@@ -33,7 +33,6 @@ class Figura:
 class Lado:
     def __init__(self, longitud):
         self._longitud = longitud
-        self.etiqueta=
     
     #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
     #antes de asignar
@@ -46,7 +45,7 @@ class Lado:
     
     #Despues
     @property
-    def ongitud(self, valor):
+    def setLongitud(self, valor):
         if valor <= 0:
             raise ValueError("La longitud debe ser positiva")
         self._longitud = valor
@@ -113,36 +112,36 @@ class Cuadrado(Poligono):
         return 4
 
 
-# class PoligonoRegular(Poligono):
-#     """Polígono de N lados de igual longitud.
+class PoligonoRegular(Poligono):
+    """Polígono de N lados de igual longitud.
 
-#     ⚠️ PARTE 3 — esta clase NO es uno de los 8 java-ismos de la Parte 1.
+    ⚠️ PARTE 3 — esta clase NO es uno de los 8 java-ismos de la Parte 1.
 
-#     Se modeló heredando de Poligono para poder guardarla en la misma lista que
-#     los demás polígonos y recorrerla con un único tipo común. En Java esa
-#     herencia hacía falta; en Python no. Si su lugar en la jerarquía lo justifica
-#     el dominio («un polígono regular ES-UN polígono») o solamente la ceremonia
-#     del compilador es, exactamente, la decisión que se te pide tomar, justificar
-#     e IMPLEMENTAR en la Parte 3.
-#     """
+    Se modeló heredando de Poligono para poder guardarla en la misma lista que
+    los demás polígonos y recorrerla con un único tipo común. En Java esa
+    herencia hacía falta; en Python no. Si su lugar en la jerarquía lo justifica
+    el dominio («un polígono regular ES-UN polígono») o solamente la ceremonia
+    del compilador es, exactamente, la decisión que se te pide tomar, justificar
+    e IMPLEMENTAR en la Parte 3.
+    """
 
-#     def __init__(self, nombre, color, medida, cantidad):
-#         super().__init__(nombre, color, [Lado(medida) for _ in range(cantidad)])
-#         self._cantidad = cantidad
+    def __init__(self, nombre, color, medida, cantidad):
+        super().__init__(nombre, color, [Lado(medida) for _ in range(cantidad)])
+        self._cantidad = cantidad
 
-#     def lados_esperados(self):
-#         return self._cantidad
+    def lados_esperados(self):
+        return self._cantidad
 
 
-# if __name__ == "__main__":
-#     activo = True
-#     if activo == True:                                      # ruido: == True
-#         t = Triangulo("Triángulo", "rojo", [Lado(3), Lado(4), Lado(5)]);   # ruido: ;
-#         c = Cuadrado("Cuadrado", "azul", [Lado(2), Lado(2), Lado(2), Lado(2)])
-#         print("Perímetro del triángulo: " + str(t.perimetro()))            # ruido: +
-#         print("Perímetro del cuadrado: " + str(c.perimetro()))
-#         t.agregar_observacion("revisar el vértice A")
-#         print("Figuras en el catálogo: " + str(len(Poligono.catalogo)))
-#         print("Nombre (via getter): " + t.getNombre())
-#         r = PoligonoRegular("Pentágono", "verde", 4, 5)
-#         print("Perímetro del pentágono: " + str(r.perimetro()))
+if __name__ == "__main__":
+    activo = True
+    if activo == True:                                      # ruido: == True
+        t = Triangulo("Triángulo", "rojo", [Lado(3), Lado(4), Lado(5)]);   # ruido: ;
+        c = Cuadrado("Cuadrado", "azul", [Lado(2), Lado(2), Lado(2), Lado(2)])
+        print("Perímetro del triángulo: " + str(t.perimetro()))            # ruido: +
+        print("Perímetro del cuadrado: " + str(c.perimetro()))
+        t.agregar_observacion("revisar el vértice A")
+        print("Figuras en el catálogo: " + str(len(Poligono.catalogo)))
+        print("Nombre (via getter): " + t.getNombre())
+        r = PoligonoRegular("Pentágono", "verde", 4, 5)
+        print("Perímetro del pentágono: " + str(r.perimetro()))

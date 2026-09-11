@@ -8,3 +8,11 @@
 7|No llamar a super desde la clase hija|Poligono.__init__|De la declaracion al runtime|La instancia se realiza pero no completamente, provocando error al consultar por ciertos atributos
 6|Type hints no validan|De imposicion a acuerdo|Poligono.area|No hay sintomas observables
 8|Intento de implementar sobrecarga de constructor|Triangulo.__init__,Cuadrado.__init__|de declaracion al runtime|No muestra sintoma alguno
+
+
+##4. La diferencia en codigo de como se ve la agregacion y la composicion es simple:
+ * En la **agregacion**, se recibe por parametro en el constructor el objeto que se va a asociar, asi mismo hay un atributo (unico, lista) que refuerza ademas el tipo de relacion.
+ * En la **Composicion**, se reciben los parametros para crear el objeto a asociar en el constructor, y se crea dentro del mismo.
+ * En la **asociacion** ambos objetos se crean al mismo nivel, pero al meno uno de ellos tiene un atributos que indica la relacion. Luego se asocia invocando al parametro, metodo o property:
+ 
+             frutas.proveedor=proveedor_uno
