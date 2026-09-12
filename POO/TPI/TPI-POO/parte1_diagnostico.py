@@ -16,24 +16,25 @@ justificado con la inversión conceptual que lo explica.
 """
 
 import math
+from abc import ABC,abstractmethod
 
 
-class Figura:
+class Figura(ABC):
     def __init__(self, nombre, color):
         self._nombre = nombre
         self._color = color
-        self._construida = True   # marca de que Figura.__init__ realmente corrió
+#        self._construida = True   # marca de que Figura.__init__ realmente corrió
         
     #Se eliminaron getters y setters innecesarios, uso de anotacion property para area
 
-    def area(self):
-        return 0.0
+    def area(self)->float:
+        ...
 
 
 class Lado:
     def __init__(self, longitud):
         self._longitud = longitud
-        self.etiqueta=
+        self.etiqueta=None
     
     #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
     #antes de asignar
@@ -46,14 +47,13 @@ class Lado:
     
     #Despues
     @property
-    def ongitud(self, valor):
+    def setLongitud(self, valor):
         if valor <= 0:
             raise ValueError("La longitud debe ser positiva")
         self._longitud = valor
 
 
 class Poligono(Figura):
-    #Se incorporo catalogo como aatributo de la clase
     def __init__(self, nombre, color, lados=None, observaciones=None):
         #Uso de super
         super().__init__(nombre,color)

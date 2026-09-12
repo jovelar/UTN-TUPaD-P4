@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from abc import ABC
+from abc import ABC,abstractmethod
 
 class Taller:
     def __init__(self):
@@ -21,8 +21,21 @@ class Etiqueta:
 
 #parte 3
 class Poligono(ABC):
-    self._lados=[]
-    def lados_esperados(self) -> int:
-    def perimetro(self)-> float:
-    def
+    def __init__(self):
+        self._lados=[]
 
+    @abstractmethod
+    def lados_esperados(self) -> int:
+        ...
+
+    @abstractmethod
+    def perimetro(self)-> float:
+        ...
+
+    @abstractmethod
+    def lados(self) -> tuple(lados):
+        ...
+
+    @abstractmethod
+    def exportar(self) ->str:
+        ...
