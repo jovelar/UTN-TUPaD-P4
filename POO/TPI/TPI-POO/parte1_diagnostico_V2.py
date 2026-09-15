@@ -37,6 +37,12 @@ class Lado:
     #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
     #antes de asignar
     
+    #Antes
+    def setLongitud(self, valor):
+        if valor <= 0:
+            raise ValueError("La longitud debe ser positiva")
+        self._longitud = valor
+    
     #Despues
     @property
     def setLongitud(self, valor):
@@ -106,7 +112,6 @@ class Cuadrado(Poligono):
         return 4
 
 
-#DESCARTADO, se opto por utilizar la clase poligono
 class PoligonoRegular(Poligono):
     """Polígono de N lados de igual longitud.
 
