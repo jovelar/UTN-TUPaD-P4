@@ -33,8 +33,9 @@ class Figura(ABC):
 
 class Lado:
     def __init__(self, longitud):
+        if longitud <= 0:
+            raise ValueError("La longitud debe ser positiva")
         self._longitud = longitud
-        self.etiqueta=None
     
     #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
     #antes de asignar
@@ -47,11 +48,8 @@ class Lado:
     
     #Despues
     @property
-    def setLongitud(self, valor):
-        if valor <= 0:
-            raise ValueError("La longitud debe ser positiva")
-        self._longitud = valor
-
+    def longitud(self):
+        return self._longitud
 
 class Poligono(Figura,ABC):
     catalogo = []
@@ -73,7 +71,7 @@ class Poligono(Figura,ABC):
 
     # >>> bucle acumulador manual en vez de comprehension <<<
     def perimetro(self):
-        return sum(l.getLongitud() for l in self._lados)
+        return sum(l.longitud for l in self._lados)
 
     # >>> el type hint miente (-> int y devuelve str) y el "@Override" no existe <<<
     def area(self) -> str:
@@ -95,11 +93,6 @@ class Triangulo(Poligono):
     def __init__(self, nombre="triángulo", color="negro", lados=None):
         super().__init__(nombre, color, lados if lados is not None else [])
 
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="triángulo", color="negro"):
-        return cls(nombre, color, lista_lados)
-
-
     def lados_esperados(self):
         return 3
 
@@ -109,12 +102,7 @@ class Triangulo(Poligono):
 class Cuadrado(Poligono):
     def __init__(self, nombre="cuadrado", color="negro", lados=None):
         super().__init__(nombre, color, lados if lados is not None else [])
-    #Se agragaron constructores alternativos
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="cuadrado", color="negro"):
-        return cls(nombre, color, lista_lados)
-
-
+        
     def lados_esperados(self):
         return 4
 

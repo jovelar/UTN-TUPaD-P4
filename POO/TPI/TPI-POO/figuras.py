@@ -1,7 +1,9 @@
+import math
 from dataclasses import dataclass
 from abc import ABC,abstractmethod
 from typing import Protocol
 from libreria_externa import *
+
 
 
 
@@ -53,6 +55,8 @@ class Lado:
     @property
     def longitud(self):
         return self._longitud
+    
+    
         
 class Poligono(Figura,ABC):
     catalogo = []
@@ -82,10 +86,12 @@ class Poligono(Figura,ABC):
     def agregar_observacion(self, texto):
         self._observaciones.append(texto)
 
-
-    def getLados(self):
+    @property
+    def lados(self):
         #devuelve una copia
         return list(self._lados)
+    
+    
     
 class Pentagono(Poligono):
     def __init__(self, nombre, color, lados=None, observaciones=None) ->None:
@@ -93,6 +99,12 @@ class Pentagono(Poligono):
     
     def lados_esperados(self) -> int:
         return 5
+    
+    def area(self) -> float:
+        lado = self._lados[0].longitud
+        return (5 * lado ** 2) / (4 * math.tan(math.pi / 5))
+
+
 
 class Hexagono(Poligono):
     def __init__(self, nombre, color, lados=None, observaciones=None) -> None:
@@ -101,29 +113,35 @@ class Hexagono(Poligono):
     def lados_esperados(self) -> int:
         return 6
     
+    def area(self) -> float:
+        lado = self._lados[0].longitud
+        return (6 * lado ** 2) / (4 * math.tan(math.pi / 6))
+    
+    
+    
 class Cuadrado(Poligono):
-    def __init__(self, nombre="cuadrado", color="negro", lados=None):
-        super().__init__(nombre, color, lados if lados is not None else [])
-    #Se agragaron constructores alternativos
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="cuadrado", color="negro"):
-        return cls(nombre, color, lista_lados)
-
+    def __init__(self, nombre="cuadrado", color="negro", lados=None,observaciones=None):
+        super().__init__(nombre, color, lados if lados is not None else [],observaciones)
 
     def lados_esperados(self):
         return 4
 
-class Triangulo(Poligono):
-    def __init__(self, nombre="triángulo", color="negro", lados=None):
-        super().__init__(nombre, color, lados if lados is not None else [])
-
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="triángulo", color="negro"):
-        return cls(nombre, color, lista_lados)
+    def area(self) -> float:
+        lado = self._lados[0].longitud
+        return lado ** 2
     
+    
+
+class Triangulo(Poligono):
+    def __init__(self, nombre="triángulo", color="negro", lados=None,observaciones=None):
+        super().__init__(nombre, color, lados if lados is not None else [],observaciones)
     
     def lados_esperados(self):
         return 3
-
+    
+    def area(self) -> float:
+        a, b, c = (l.longitud for l in self._lados)
+        s = (a + b + c) / 2
+        return math.sqrt(s * (s - a) * (s - b) * (s - c))
 
 
