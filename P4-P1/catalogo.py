@@ -1,6 +1,13 @@
 from abc import ABC,abstractmethod
 from dataclasses import dataclass
 import copy
+from typing import Protocol
+
+@dataclass(frozen=True)
+class UnidadMedida():
+    nombre:str
+    simbolo:str
+    tipo:str
 
 @dataclass(frozen=True)
 class UnidadMedida():
@@ -31,7 +38,9 @@ class ProductoCategoria():
     @property
     def es_principal(self)->bool:
         return self._es_principal
-
+    
+    def _marcar_principal(self,valor:bool)->None:
+        self._es_principal=True
     
     
 
@@ -129,3 +138,10 @@ class ProductoCombo(Producto):
         super().__init__(nombre, precio_base, stock_cantidad, habilitado, categoria, unidad_venta)
         self._componentes=list[Producto]
         self._descuento:float
+    
+    def precio_final(self,cantidad)->float:
+        return (self._precio_base*cantidad)*(1-self._descuento)
+
+class Exportable(Protocol):
+    def exportar(self)->str:
+        ...
