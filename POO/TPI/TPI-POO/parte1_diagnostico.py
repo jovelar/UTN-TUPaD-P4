@@ -26,15 +26,16 @@ class Figura(ABC):
 #        self._construida = True   # marca de que Figura.__init__ realmente corrió
         
     #Se eliminaron getters y setters innecesarios, uso de anotacion property para area
-
+    @abstractmethod
     def area(self)->float:
         ...
 
 
 class Lado:
     def __init__(self, longitud):
+        if longitud <= 0:
+            raise ValueError("La longitud debe ser positiva")
         self._longitud = longitud
-        self.etiqueta=None
     
     #Se elimino getter innecesario e uso de la anotacion @property por que realiza evaluacion
     #antes de asignar
@@ -47,28 +48,30 @@ class Lado:
     
     #Despues
     @property
-    def setLongitud(self, valor):
-        if valor <= 0:
-            raise ValueError("La longitud debe ser positiva")
-        self._longitud = valor
+    def longitud(self):
+        return self._longitud
 
-
-class Poligono(Figura):
+class Poligono(Figura,ABC):
+    catalogo = []
     def __init__(self, nombre, color, lados=None, observaciones=None):
         #Uso de super
         super().__init__(nombre,color)
         #se realiza una copia defensiva para desvincular
         self._lados = list(lados) if lados is not None else []
+        
+        #validacion de los lados
+        if len(self._lados) != self.lados_esperados():
+            raise ValueError(f"{type(self).__name__} espera {self.lados_esperados()} lados, recibió {len(self._lados)}")
         self._observaciones = observaciones if observaciones is not None else []
-        self.catalogo = []
         Poligono.catalogo.append(self)
-
+    
+    @abstractmethod
     def lados_esperados(self):
-        return 0
+        ...
 
     # >>> bucle acumulador manual en vez de comprehension <<<
     def perimetro(self):
-        return sum(l.getLongitud() for l in self._lados)
+        return sum(l.longitud for l in self._lados)
 
     # >>> el type hint miente (-> int y devuelve str) y el "@Override" no existe <<<
     def area(self) -> str:
@@ -81,18 +84,14 @@ class Poligono(Figura):
     def getLados(self):
         #devuelve una copia
         return list(self._lados)
-
+    
+    #
 
 # >>> sobrecarga de constructor estilo Java: un __init__ con ramas isinstance <<<
 #Se agregaron constructores alternativos
 class Triangulo(Poligono):
     def __init__(self, nombre="triángulo", color="negro", lados=None):
         super().__init__(nombre, color, lados if lados is not None else [])
-
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="triángulo", color="negro"):
-        return cls(nombre, color, lista_lados)
-
 
     def lados_esperados(self):
         return 3
@@ -103,12 +102,7 @@ class Triangulo(Poligono):
 class Cuadrado(Poligono):
     def __init__(self, nombre="cuadrado", color="negro", lados=None):
         super().__init__(nombre, color, lados if lados is not None else [])
-    #Se agragaron constructores alternativos
-    @classmethod
-    def desde_lista_lados(cls, lista_lados, nombre="cuadrado", color="negro"):
-        return cls(nombre, color, lista_lados)
-
-
+        
     def lados_esperados(self):
         return 4
 
@@ -146,3 +140,4 @@ class Cuadrado(Poligono):
 #         print("Nombre (via getter): " + t.getNombre())
 #         r = PoligonoRegular("Pentágono", "verde", 4, 5)
 #         print("Perímetro del pentágono: " + str(r.perimetro()))
+
