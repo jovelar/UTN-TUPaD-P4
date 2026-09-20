@@ -9,20 +9,15 @@ class UnidadMedida():
     simbolo:str
     tipo:str
 
-@dataclass(frozen=True)
-class UnidadMedida():
-    nombre:str
-    simbolo:str
-    tipo:str
-
 class Categoria():
-    def __init__(self,nombre:str,descripcion:str):
+    def __init__(self,nombre:str,descripcion:str|None):
         self._nombre=nombre
         self._descripcion=descripcion
 
+    @property
     def nombre(self)->str:
         return self._nombre
-    
+    @property
     def descripcion(self)->str:
         return self._descripcion
 
@@ -77,7 +72,7 @@ class Producto(ABC):
          return self._precio_base
 
     @property
-    def unidad_venta(self)-> UnidadMedida:
+    def unidad_venta(self)-> UnidadMedida|None:
         return self._unidad_venta
 
     @property
@@ -86,7 +81,12 @@ class Producto(ABC):
 
     @property
     def precio_publicado(self)->str:
-        return self._precio_base
+        publicado=""
+        if self._unidad_venta is not None:
+            publicado=f"{self._precio_base}/{self._unidad_venta.simbolo}"
+        else:
+            publicado=f"{self._precio_base}"
+        return publicado
 
     @abstractmethod
     def precio_final(self,cantidad:int)->float:
