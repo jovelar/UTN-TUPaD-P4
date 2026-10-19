@@ -16,7 +16,7 @@ def alta_categoria(categoria: schemas.CategoriaCreate, session: SessionDep):
 @router.get(
     "/", response_model=List[schemas.CategoriaRead], status_code=status.HTTP_200_OK
 )
-def listar_categorias(session: SessionDep, skip: int = Query(0, ge=0), limit: int = Query(10, le=50)):
+def listar_categorias(session: SessionDep, skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=50)):
     return services.obtener_todas(session, skip, limit)
 
 

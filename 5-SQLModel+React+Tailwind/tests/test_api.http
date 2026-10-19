@@ -89,7 +89,7 @@ Content-Type: application/json
   "descripcion": "Silla ergonómica con apoyabrazos",
   "categoria": "MUE-01",
   "precio": 299.99,
-  "stock": 20,
+  "stock": 3,
   "stock_minimo": 5,
   "activo": true
 }

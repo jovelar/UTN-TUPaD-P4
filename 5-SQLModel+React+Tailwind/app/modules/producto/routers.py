@@ -21,7 +21,7 @@ def alta_producto(producto: schemas.ProductoCreate, session:SessionDep):
 @router.get(
     "/", response_model=List[schemas.ProductoRead], status_code=status.HTTP_200_OK
 )
-def listar_productos(session: SessionDep, skip: int = Query(0, ge=0), limit: int = Query(10, le=50)):
+def listar_productos(session: SessionDep, skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=50)):
     return services.obtener_todos(session,skip, limit)
 
 
@@ -81,7 +81,6 @@ def eliminar_producto(session: SessionDep, id: int = Path(..., gt=0)):
     response_model=schemas.ProductoStockResponse,
     status_code=status.HTTP_200_OK,
 )
-@router.get("/{id}/stock", response_model=schemas.ProductoStockResponse)
 def consultar_stock(session: SessionDep, id: int = Path(..., gt=0)):
     resultado = services.obtener_estado_stock(session, id)  # Llamada al servicio
     if not resultado:
