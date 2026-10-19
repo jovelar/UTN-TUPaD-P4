@@ -1,0 +1,222 @@
+@baseUrl = http://127.0.0.1:8000
+
+### ==========================================
+### MÓDULO: CATEGORÍAS
+### ==========================================
+
+### 1. Listar Categorías
+GET {{baseUrl}}/categorias/
+
+### 2. Crear Categoría
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "codigo": "HER-03",
+  "descripcion": "Herramientas Manuales",
+  "activo": true
+}
+
+### 3. Detalle de Categoría Exitoso
+GET {{baseUrl}}/categorias/3
+
+### 4. Actualizar Categoría (Reemplazo Total)
+PUT {{baseUrl}}/categorias/3
+Content-Type: application/json
+
+{
+  "codigo": "HER-03",
+  "descripcion": "Herramientas de Jardinería y Taller",
+  "activo": true
+}
+
+### 5. Desactivar Categoría (Borrado Lógico)
+PUT {{baseUrl}}/categorias/3/desactivar
+
+
+### ==========================================
+### MÓDULO: PRODUCTOS
+### ==========================================
+
+### 6. Crear Producto (Prueba: Body, Pydantic, status 201)
+POST {{baseUrl}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Silla Ergonómica",
+  "categoria": "MUE-01",
+  "precio": 250.00,
+  "stock": 10,
+  "stock_minimo": 5,
+  "activo": true
+}
+
+### 7. Listar Productos (Prueba: Query Parameters)
+GET {{baseUrl}}/productos/?skip=0&limit=5
+
+### 8. Detalle Producto Exitoso (Prueba: Path Parameters y Response Model)
+GET {{baseUrl}}/productos/1
+
+### 9. Actualizar Producto (Reemplazo total)
+# Bajamos el stock a 3 para forzar la alerta de "bajo_stock_minimo"
+PUT {{baseUrl}}/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Silla Ergonómica Premium",
+  "categoria": "MUE-01",
+  "precio": 299.99,
+  "stock": 20,
+  "stock_minimo": 5,
+  "activo": true
+}
+
+### 10. Consultar Alerta de Stock (Prueba: Lógica de negocio dinámica)
+# Debería retornar "bajo_stock_minimo": true debido al PUT anterior
+GET {{baseUrl}}/productos/1/stock
+
+### 11. Desactivar Producto (Borrado Lógico)
+PUT {{baseUrl}}/productos/1/desactivar
+
+### 12. Detalle Producto Inexistente (Prueba: Manejo de Errores 404)
+GET {{baseUrl}}/productos/99
+
+### 13. Producto Inválido (Prueba: Error 422 automático)
+# Falla porque: 
+# - La categoría no cumple el Regex.
+# - El precio es negativo.
+POST {{baseUrl}}/productos/
+Content-Type: application/json
+
+{
+  "nombre": "Escritorio Roto",
+  "categoria": "MUEBLES",
+  "precio": -50.00,
+  "stock": 5,
+  "stock_minimo": 5,
+  "activo": true
+}
+
+
+### ==========================================
+### MÓDULO: PROVEEDORES
+### ==========================================
+
+### 14. Crear Proveedor (201)
+POST {{baseUrl}}/proveedores/
+Content-Type: application/json
+
+{
+  "codigo": "PROV-01",
+  "razon_social": "Distribuidora Sur SA",
+  "cuit": "20-12345678-9",
+  "email": "ventas@dsur.com",
+  "telefono": "1144556677",
+  "activo": true
+}
+
+### 15. Crear segundo Proveedor (201)
+POST {{baseUrl}}/proveedores/
+Content-Type: application/json
+
+{
+  "codigo": "PROV-02",
+  "razon_social": "Maderas del Norte SRL",
+  "cuit": "30-87654321-0"
+}
+
+### 16. Crear Proveedor con código duplicado (409 - RN-02)
+POST {{baseUrl}}/proveedores/
+Content-Type: application/json
+
+{
+  "codigo": "PROV-01",
+  "razon_social": "Otra Empresa SA",
+  "cuit": "20-11111111-1"
+}
+
+### 17. Crear Proveedor con código vacío (422 - RN-01)
+POST {{baseUrl}}/proveedores/
+Content-Type: application/json
+
+{
+  "codigo": "",
+  "razon_social": "Empresa Sin Codigo",
+  "cuit": "20-22222222-2"
+}
+
+### 18. Crear Proveedor con razón social corta (422 - RN-03)
+POST {{baseUrl}}/proveedores/
+Content-Type: application/json
+
+{
+  "codigo": "PROV-03",
+  "razon_social": "AB",
+  "cuit": "20-33333333-3"
+}
+
+### 19. Listar Proveedores (200)
+GET {{baseUrl}}/proveedores/
+
+### 20. Listar Proveedores con paginación (200)
+GET {{baseUrl}}/proveedores/?skip=1&limit=1
+
+### 21. Listar con limit inválido (422)
+GET {{baseUrl}}/proveedores/?limit=0
+
+### 22. Listar con limit mayor a 50 (422)
+GET {{baseUrl}}/proveedores/?limit=51
+
+### 23. Detalle de Proveedor (200)
+GET {{baseUrl}}/proveedores/1
+
+### 24. Detalle de Proveedor inexistente (404 - RN-04)
+GET {{baseUrl}}/proveedores/99
+
+### 25. Actualizar Proveedor (200)
+PUT {{baseUrl}}/proveedores/1
+Content-Type: application/json
+
+{
+  "codigo": "PROV-01",
+  "razon_social": "Distribuidora Sur SA",
+  "cuit": "20-12345678-9",
+  "email": "compras@dsur.com",
+  "telefono": "1199998888",
+  "activo": true
+}
+
+### 26. Actualizar con código de otro Proveedor (409 - RN-02)
+PUT {{baseUrl}}/proveedores/1
+Content-Type: application/json
+
+{
+  "codigo": "PROV-02",
+  "razon_social": "Distribuidora Sur SA",
+  "cuit": "20-12345678-9"
+}
+
+### 27. Actualizar Proveedor inexistente
+PUT {{baseUrl}}/proveedores/99
+Content-Type: application/json
+
+{
+  "codigo": "PROV-99",
+  "razon_social": "No Existe SA",
+  "cuit": "20-99999999-9"
+}
+
+### 28. Desactivar Proveedor (200)
+PUT {{baseUrl}}/proveedores/1/desactivar
+
+### 29. Desactivar Proveedor ya desactivado (409 - RN-05)
+PUT {{baseUrl}}/proveedores/1/desactivar
+
+### 30. Desactivar Proveedor inexistente (404 - RN-04)
+PUT {{baseUrl}}/proveedores/99/desactivar
+
+### 31. Listar solo activos (200)
+GET {{baseUrl}}/proveedores/?activo=true
+
+### 32. Listar solo inactivos (200)
+GET {{baseUrl}}/proveedores/?activo=false  
