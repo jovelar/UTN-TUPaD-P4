@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Path, Query, status
 from typing import List
 from typing import Optional
 from . import schemas, services
+from database import SessionDep
 
 router = APIRouter(prefix="/proveedores", tags=["Proveedores"])
 
@@ -13,18 +14,19 @@ router = APIRouter(prefix="/proveedores", tags=["Proveedores"])
 @router.post(
     "/", response_model=schemas.ProveedorRead, status_code=status.HTTP_201_CREATED
 )
-def alta_proveedor(proveedor: schemas.ProveedorCreate):
-    return services.crear(proveedor)
+def alta_proveedor(proveedor: schemas.ProveedorCreate, session: SessionDep):
+    return services.crear(session, proveedor)
 
 
 # (Extra) LISTAR proveedorS
 @router.get(
     "/", response_model=List[schemas.ProveedorRead], status_code=status.HTTP_200_OK
 )
-def listar_proveedors(skip: int = Query(0, ge=0), 
+def listar_proveedors(session: SessionDep,
+                      skip: int = Query(0, ge=0),
                       limit: int = Query(10,ge=1, le=50),
                       activo: Optional[bool]= Query(None)):
-    return services.obtener_todos(skip, limit,activo)
+    return services.obtener_todos(session, skip, limit, activo)
 
 
 # ---------------------------------------------------------
@@ -34,8 +36,8 @@ def listar_proveedors(skip: int = Query(0, ge=0),
 @router.get(
     "/{id}", response_model=schemas.ProveedorRead, status_code=status.HTTP_200_OK
 )
-def detalle_proveedor(id: int = Path(..., gt=0)):
-    proveedor = services.obtener_por_id(id)
+def detalle_proveedor(session: SessionDep, id: int = Path(..., gt=0)):
+    proveedor = services.obtener_por_id(session, id)
     if not proveedor:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="proveedor no encontrado"
@@ -50,9 +52,9 @@ def detalle_proveedor(id: int = Path(..., gt=0)):
 @router.put(
     "/{id}", response_model=schemas.ProveedorRead, status_code=status.HTTP_200_OK
 )
-def actualizar_proveedor(proveedor: schemas.ProveedorCreate, id: int = Path(..., gt=0)):
+def actualizar_proveedor(proveedor: schemas.ProveedorCreate, session: SessionDep, id: int = Path(..., gt=0)):
     # Usamos proveedorCreate porque es un reemplazo total (exige todos los campos)
-    actualizado = services.actualizar_total(id, proveedor)
+    actualizado = services.actualizar_total(session, id, proveedor)
     if not actualizado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="proveedor no encontrado"
@@ -61,37 +63,14 @@ def actualizar_proveedor(proveedor: schemas.ProveedorCreate, id: int = Path(...,
 
 
 # ---------------------------------------------------------
-# BORRADO LÓGICO
-# Método: PUT | Endpoint: /proveedors/{id}/desactivar | Estado: 200 OK
+# ELIMINAR proveedor
+# Método: DELETE | Endpoint: /proveedores/{id} | Estado: 200 OK
 # ---------------------------------------------------------
-@router.put(
-    "/{id}/desactivar",
-    response_model=schemas.ProveedorRead,
-    status_code=status.HTTP_200_OK,
-)
-def borrado_logico(id: int = Path(..., gt=0)):
-    desactivado = services.desactivar(id)
-    if not desactivado:
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
+def eliminar_proveedor(session: SessionDep, id: int = Path(..., gt=0)):
+    eliminado = services.eliminar(session, id)
+    if not eliminado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="proveedor no encontrado"
         )
-    return desactivado
-
-
-# # ---------------------------------------------------------
-# # CONSULTAR STOCK (Lógica de Negocio)
-# # Método: GET | Endpoint: /proveedors/{id}/stock | Estado: 200 OK
-# # ---------------------------------------------------------
-# @router.get(
-#     "/{id}/stock",
-#     response_model=schemas.ProveedorStockResponse,
-#     status_code=status.HTTP_200_OK,
-# )
-# @router.get("/{id}/stock", response_model=schemas.ProveedorStockResponse)
-# def consultar_stock(id: int = Path(..., gt=0)):
-#     resultado = services.obtener_estado_stock(id)  # Llamada al servicio
-#     if not resultado:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND, detail="proveedor no encontrado"
-#         )
-#     return resultado  # El router solo devuelve el resultado
+    return {"ok": True}

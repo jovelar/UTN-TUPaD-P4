@@ -7,6 +7,26 @@
 ### 1. Listar Categorías
 GET {{baseUrl}}/categorias/
 
+### 1.1 Cargar categoría inicial MUE-01
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "codigo": "MUE-01",
+  "descripcion": "Muebles de Oficina",
+  "activo": true
+}
+
+### 1.2 Cargar categoría inicial ELE-02
+POST {{baseUrl}}/categorias/
+Content-Type: application/json
+
+{
+  "codigo": "ELE-02",
+  "descripcion": "Electrónica",
+  "activo": true
+}
+
 ### 2. Crear Categoría
 POST {{baseUrl}}/categorias/
 Content-Type: application/json
@@ -30,8 +50,8 @@ Content-Type: application/json
   "activo": true
 }
 
-### 5. Desactivar Categoría (Borrado Lógico)
-PUT {{baseUrl}}/categorias/3/desactivar
+### 5. Eliminar Categoría
+DELETE {{baseUrl}}/categorias/3
 
 
 
@@ -243,17 +263,15 @@ Content-Type: application/json
   "cuit": "20-99999999-9"
 }
 
-### 28. Desactivar Proveedor (200)
-PUT {{baseUrl}}/proveedores/1/desactivar
 
-### 29. Desactivar Proveedor ya desactivado (409 - RN-05)
-PUT {{baseUrl}}/proveedores/1/desactivar
+### 28. Eliminar Proveedor (200)
+DELETE {{baseUrl}}/proveedores/1
 
-### 30. Desactivar Proveedor inexistente (404 - RN-04)
-PUT {{baseUrl}}/proveedores/99/desactivar
+### 29. Eliminar Proveedor inexistente (404 - RN-04)
+DELETE {{baseUrl}}/proveedores/99
 
-### 31. Listar solo activos (200)
+### 30. Listar solo activos (200)
 GET {{baseUrl}}/proveedores/?activo=true
 
-### 32. Listar solo inactivos (200)
-GET {{baseUrl}}/proveedores/?activo=false  
+### 31. Listar solo inactivos (200)
+GET {{baseUrl}}/proveedores/?activo=false
