@@ -1,0 +1,11 @@
+#fastapi[standard]
+#uvicorn
+#sqlmodel
+#sqlalchemy
+#psycopg[binary]
+#python-dotenv
+
+fastapi[standard]
+sqlmodel
+psycopg2-binary
+python-dotenv
