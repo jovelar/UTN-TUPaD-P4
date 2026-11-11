@@ -1,0 +1,316 @@
+@baseUrl = http://127.0.0.1:8000
+
+### ==========================================
+### PRODUCTOS - Ejecutar en orden sobre tablas vacías
+### ==========================================
+
+### 1. Listar unidades de medida (200)
+GET {{baseUrl}}/api/v1/unidades-medida
+
+### 2. Crear categoría para probar el filtro categoria_id (201)
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Pastas",
+  "descripcion": "Pastas frescas y secas"
+}
+
+### 3. Crear producto por kilogramo (201, hay_stock true)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Ravioles de ricota",
+  "descripcion": "Ravioles caseros",
+  "precio_base": 12.50,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 3.5,
+  "disponible": true
+}
+
+### 4. Crear producto por pieza (201)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Empanada de carne",
+  "descripcion": "Empanada al horno",
+  "precio_base": 1.80,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 24,
+  "disponible": true
+}
+
+### 5. Crear producto sin stock y con venta pausada (201, stock 0, hay_stock false)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Agua mineral",
+  "descripcion": "Botella de agua sin gas",
+  "precio_base": 2.00,
+  "unidad_venta_id": 3,
+  "disponible": false
+}
+
+### 6. Listar productos (200)
+GET {{baseUrl}}/api/v1/productos
+
+### 7. Listar con paginación (200)
+GET {{baseUrl}}/api/v1/productos?skip=0&limit=2
+
+### 8. Detalle de producto con unidad anidada y hay_stock (200)
+GET {{baseUrl}}/api/v1/productos/1
+
+### 9. Actualizar producto (200)
+PUT {{baseUrl}}/api/v1/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Ravioles de ricota",
+  "descripcion": "Ravioles caseros de ricota y nuez",
+  "precio_base": 13.75,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 3.5,
+  "disponible": true
+}
+
+### 10. Clasificar el producto 1 en la categoría 1 (201)
+POST {{baseUrl}}/api/v1/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 1,
+  "es_principal": true
+}
+
+### ==========================================
+### FILTROS DEL LISTADO
+### ==========================================
+
+### 11. Filtro disponible=false (200, solo Agua mineral)
+GET {{baseUrl}}/api/v1/productos?disponible=false
+
+### 12. Filtro search sin distinguir mayúsculas (200, solo Ravioles)
+GET {{baseUrl}}/api/v1/productos?search=RAVIO
+
+### 13. Filtro categoria_id (200, solo Ravioles)
+GET {{baseUrl}}/api/v1/productos?categoria_id=1
+
+### ==========================================
+### STOCK Y hay_stock (RN-11 y RN-12)
+### ==========================================
+
+### 14. Antes: stock 24 y hay_stock true (200)
+GET {{baseUrl}}/api/v1/productos/2
+
+### 15. Llevar el stock a 0 (200, hay_stock false)
+PUT {{baseUrl}}/api/v1/productos/2
+Content-Type: application/json
+
+{
+  "nombre": "Empanada de carne",
+  "descripcion": "Empanada al horno",
+  "precio_base": 1.80,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 0,
+  "disponible": true
+}
+
+### 16. Después: stock 0 y hay_stock false (200)
+GET {{baseUrl}}/api/v1/productos/2
+
+### 17. Pausar la venta: disponible false y activo sigue en true (200)
+PUT {{baseUrl}}/api/v1/productos/2
+Content-Type: application/json
+
+{
+  "nombre": "Empanada de carne",
+  "descripcion": "Empanada al horno",
+  "precio_base": 1.80,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 0,
+  "disponible": false
+}
+
+### ==========================================
+### ERRORES 422
+### ==========================================
+
+### 18. ERROR 422 - nombre de menos de 3 caracteres
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "ab",
+  "precio_base": 10,
+  "unidad_venta_id": 1
+}
+
+### 19. ERROR 422 - precio negativo
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto invalido",
+  "precio_base": -1,
+  "unidad_venta_id": 1
+}
+
+### 20. ERROR 422 - stock negativo
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto invalido",
+  "precio_base": 10,
+  "unidad_venta_id": 1,
+  "stock_cantidad": -5
+}
+
+### 21. ERROR 422 - sin unidad de venta
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto invalido",
+  "precio_base": 10
+}
+
+### 22. ERROR 422 - stock con decimales sobre unidad contable (POST)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Alfajor de maicena",
+  "precio_base": 1.50,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 2.5
+}
+
+### 23. ERROR 422 - stock con decimales sobre unidad contable (PUT)
+PUT {{baseUrl}}/api/v1/productos/2
+Content-Type: application/json
+
+{
+  "nombre": "Empanada de carne",
+  "descripcion": "Empanada al horno",
+  "precio_base": 1.80,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 1.5,
+  "disponible": true
+}
+
+### 24. ERROR 422 - cambiar a unidad contable con stock decimal (PUT)
+PUT {{baseUrl}}/api/v1/productos/1
+Content-Type: application/json
+
+{
+  "nombre": "Ravioles de ricota",
+  "descripcion": "Ravioles caseros de ricota y nuez",
+  "precio_base": 13.75,
+  "unidad_venta_id": 6,
+  "stock_cantidad": 3.5,
+  "disponible": true
+}
+
+### ==========================================
+### ERRORES 404
+### ==========================================
+
+### 25. ERROR 404 - detalle de producto inexistente
+GET {{baseUrl}}/api/v1/productos/999
+
+### 26. ERROR 404 - actualizar producto inexistente
+PUT {{baseUrl}}/api/v1/productos/999
+Content-Type: application/json
+
+{
+  "nombre": "No existe",
+  "precio_base": 10,
+  "unidad_venta_id": 1,
+  "stock_cantidad": 1,
+  "disponible": true
+}
+
+### 27. ERROR 404 - anular producto inexistente
+DELETE {{baseUrl}}/api/v1/productos/999
+
+### 28. ERROR 404 - unidad de venta inexistente
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto sin unidad",
+  "precio_base": 10,
+  "unidad_venta_id": 99
+}
+
+### ==========================================
+### ERRORES 409 Y BAJA LÓGICA
+### ==========================================
+
+### 29. ERROR 409 - nombre repetido al crear
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Ravioles de ricota",
+  "precio_base": 10,
+  "unidad_venta_id": 1
+}
+
+### 30. ERROR 409 - nombre repetido al actualizar
+PUT {{baseUrl}}/api/v1/productos/2
+Content-Type: application/json
+
+{
+  "nombre": "Ravioles de ricota",
+  "descripcion": "Empanada al horno",
+  "precio_base": 1.80,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 0,
+  "disponible": false
+}
+
+### 31. Anular producto (204)
+DELETE {{baseUrl}}/api/v1/productos/3
+
+### 32. El listado por defecto ya no lo muestra (200)
+GET {{baseUrl}}/api/v1/productos
+
+### 33. Filtro activo=false (200, solo Agua mineral)
+GET {{baseUrl}}/api/v1/productos?activo=false
+
+### 34. Se puede consultar por id: activo false, disponible sin cambios (200)
+GET {{baseUrl}}/api/v1/productos/3
+
+### 35. ERROR 409 - anular un producto ya anulado
+DELETE {{baseUrl}}/api/v1/productos/3
+
+### 36. ERROR 409 - modificar un producto anulado
+PUT {{baseUrl}}/api/v1/productos/3
+Content-Type: application/json
+
+{
+  "nombre": "Agua mineral",
+  "descripcion": "Botella de agua sin gas",
+  "precio_base": 2.50,
+  "unidad_venta_id": 3,
+  "stock_cantidad": 10,
+  "disponible": true
+}
+
+### 37. El anulado liberó su nombre: se puede crear otro igual (201)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Agua mineral",
+  "descripcion": "Botella de agua sin gas",
+  "precio_base": 2.00,
+  "unidad_venta_id": 3,
+  "stock_cantidad": 12,
+  "disponible": true
+}
