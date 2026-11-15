@@ -46,7 +46,7 @@ def detalle_producto(session:SessionDep,id: int = Path(..., gt=0)):
 # Método: PUT | Endpoint: /productos/{id} | Estado: 200 OK
 # ---------------------------------------------------------
 @router.put(
-    "/{id}", response_model=schemas.ProductoRead, status_code=status.HTTP_200_OK
+    "/{id}", response_model=schemas.ProductoRead, status_code=status.HTTP_204_OK
 )
 def actualizar_producto(producto: schemas.ProductoCreate, session: SessionDep,id: int = Path(..., gt=0)):
     # Usamos ProductoCreate porque es un reemplazo total (exige todos los campos)
@@ -62,23 +62,27 @@ def actualizar_producto(producto: schemas.ProductoCreate, session: SessionDep,id
 # ELIMINAR PRODUCTO
 # Método: DELETE | Endpoint: /productos/{id} | Estado: 200 OK
 # ---------------------------------------------------------
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_producto(session: SessionDep, id: int = Path(..., gt=0)):
     eliminado = services.eliminar(session, id)
     if not eliminado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado"
         )
-    return {"ok": True}
+
 
 
 # ---------------------------------------------------------
 # ASIGNAR CATEGORÍA A PRODUCTO
 # Método: POST | Endpoint: /productos/{id}/categorias/{categoria_id} | Estado: 201 Created
 # ---------------------------------------------------------
-@router.post("/{id}/categorias/{categoria_id}", status_code=status.HTTP_201_CREATED)
-def asignar_categoria(session: SessionDep, id: int = Path(..., gt=0), categoria_id: int = Path(..., gt=0)):
-    return services.asignar_categoria(session, id, categoria_id)
+@router.post("/{id}/categorias", status_code=status.HTTP_201_CREATED)
+def asignar_categoria(
+    data: schemas.ProductoCategoriaCreate,
+    session: SessionDep,
+    id: int = Path(..., gt=0),
+):
+    return services.asignar_categoria(session, id, data.categoria_id)
 
 
 

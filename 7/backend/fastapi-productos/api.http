@@ -57,7 +57,7 @@ Content-Type: application/json
   "nombre": "Notebook",
   "descripcion": "Notebook 15 pulgadas",
   "precio_base": 850000,
-  "imagen_url": [
+  "imagenes_url": [
     "https://ejemplo.com/notebook-1.jpg",
     "https://ejemplo.com/notebook-2.jpg"
   ],
@@ -78,7 +78,7 @@ Content-Type: application/json
   "nombre": "Notebook Pro",
   "descripcion": "Notebook 15 pulgadas, 16GB RAM",
   "precio_base": 950000,
-  "imagen_url": ["https://ejemplo.com/notebook-pro.jpg"],
+  "imagenes_url": ["https://ejemplo.com/notebook-pro.jpg"],
   "disponible": false
 }
 
@@ -93,29 +93,54 @@ Content-Type: application/json
   "nombre": "Inválido",
   "descripcion": "Precio negativo",
   "precio_base": -10,
-  "imagen_url": [],
+  "imagenes_url": [],
   "disponible": true
 }
 
 ### ============ PRODUCTO - CATEGORÍA ============
 
 ### Asignar categoría 1 al producto 1
-POST {{baseUrl}}/productos/1/categorias/1
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 1
+}
 
 ### Asignar categoría 2 al producto 1
-POST {{baseUrl}}/productos/1/categorias/2
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2
+}
 
 ### Listar categorías del producto 1
 GET {{baseUrl}}/productos/1/categorias
 
 ### ERROR 409 - asignar dos veces la misma
-POST {{baseUrl}}/productos/1/categorias/1
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 1
+}
 
 ### ERROR 404 - categoría inexistente
-POST {{baseUrl}}/productos/1/categorias/999
+POST {{baseUrl}}/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 999
+}
 
 ### ERROR 404 - producto inexistente
-POST {{baseUrl}}/productos/999/categorias/1
+POST {{baseUrl}}/productos/999/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 1
+}
 
 ### Quitar categoría 2 del producto 1
 DELETE {{baseUrl}}/productos/1/categorias/2

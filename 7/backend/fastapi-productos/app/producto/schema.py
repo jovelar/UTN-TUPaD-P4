@@ -7,7 +7,7 @@ class ProductoBase(BaseModel):
     nombre: str = Field(..., min_length=1)
     descripcion: str
     precio_base: float = Field(ge=0)
-    imagen_url: List[str] = []
+    imagenes_url: List[str] = []
     disponible: bool = True
 
 
@@ -21,3 +21,7 @@ class ProductoRead(ProductoBase):
 
 class ProductoReadWithCategorias(ProductoRead):
     categorias: List[CategoriaRead] = []
+    
+
+class ProductoCategoriaCreate(BaseModel):
+    categoria_id: int = Field(gt=0)

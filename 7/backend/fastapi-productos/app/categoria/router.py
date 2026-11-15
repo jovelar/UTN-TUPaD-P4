@@ -44,11 +44,10 @@ def actualizar_categoria(categoria: schemas.CategoriaCreate, session: SessionDep
     return actualizada
 
 
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_categoria(session: SessionDep, id: int = Path(..., gt=0)):
     eliminada = services.eliminar(session, id)
     if not eliminada:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada"
         )
-    return {"ok": True}
