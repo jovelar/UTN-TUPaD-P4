@@ -23,9 +23,9 @@ Content-Type: application/json
 {
   "nombre": "Ravioles de ricota",
   "descripcion": "Ravioles caseros",
-  "precio_base": 12.50,
+  "precio_base": 12500,
   "unidad_venta_id": 1,
-  "stock_cantidad": 3.5,
+  "stock_cantidad": 400,
   "disponible": true
 }
 
@@ -36,7 +36,7 @@ Content-Type: application/json
 {
   "nombre": "Empanada de carne",
   "descripcion": "Empanada al horno",
-  "precio_base": 1.80,
+  "precio_base": 3500,
   "unidad_venta_id": 5,
   "stock_cantidad": 24,
   "disponible": true
@@ -49,7 +49,7 @@ Content-Type: application/json
 {
   "nombre": "Agua mineral",
   "descripcion": "Botella de agua sin gas",
-  "precio_base": 2.00,
+  "precio_base": 2000,
   "unidad_venta_id": 3,
   "disponible": false
 }
@@ -70,9 +70,9 @@ Content-Type: application/json
 {
   "nombre": "Ravioles de ricota",
   "descripcion": "Ravioles caseros de ricota y nuez",
-  "precio_base": 13.75,
+  "precio_base": 16000,
   "unidad_venta_id": 1,
-  "stock_cantidad": 3.5,
+  "stock_cantidad": 200,
   "disponible": true
 }
 
@@ -112,7 +112,7 @@ Content-Type: application/json
 {
   "nombre": "Empanada de carne",
   "descripcion": "Empanada al horno",
-  "precio_base": 1.80,
+  "precio_base": 3500,
   "unidad_venta_id": 5,
   "stock_cantidad": 0,
   "disponible": true
@@ -128,7 +128,7 @@ Content-Type: application/json
 {
   "nombre": "Empanada de carne",
   "descripcion": "Empanada al horno",
-  "precio_base": 1.80,
+  "precio_base": 3500,
   "unidad_venta_id": 5,
   "stock_cantidad": 0,
   "disponible": false
@@ -184,7 +184,7 @@ Content-Type: application/json
 
 {
   "nombre": "Alfajor de maicena",
-  "precio_base": 1.50,
+  "precio_base": 2500,
   "unidad_venta_id": 5,
   "stock_cantidad": 2.5
 }
@@ -196,7 +196,7 @@ Content-Type: application/json
 {
   "nombre": "Empanada de carne",
   "descripcion": "Empanada al horno",
-  "precio_base": 1.80,
+  "precio_base": 3500,
   "unidad_venta_id": 5,
   "stock_cantidad": 1.5,
   "disponible": true
@@ -209,7 +209,7 @@ Content-Type: application/json
 {
   "nombre": "Ravioles de ricota",
   "descripcion": "Ravioles caseros de ricota y nuez",
-  "precio_base": 13.75,
+  "precio_base": 13750,
   "unidad_venta_id": 6,
   "stock_cantidad": 3.5,
   "disponible": true
@@ -228,7 +228,7 @@ Content-Type: application/json
 
 {
   "nombre": "No existe",
-  "precio_base": 10,
+  "precio_base": 15000,
   "unidad_venta_id": 1,
   "stock_cantidad": 1,
   "disponible": true
@@ -243,7 +243,7 @@ Content-Type: application/json
 
 {
   "nombre": "Producto sin unidad",
-  "precio_base": 10,
+  "precio_base": 20000,
   "unidad_venta_id": 99
 }
 
@@ -257,7 +257,7 @@ Content-Type: application/json
 
 {
   "nombre": "Ravioles de ricota",
-  "precio_base": 10,
+  "precio_base": 12000,
   "unidad_venta_id": 1
 }
 
@@ -268,7 +268,7 @@ Content-Type: application/json
 {
   "nombre": "Ravioles de ricota",
   "descripcion": "Empanada al horno",
-  "precio_base": 1.80,
+  "precio_base": 12000,
   "unidad_venta_id": 5,
   "stock_cantidad": 0,
   "disponible": false
@@ -296,7 +296,7 @@ Content-Type: application/json
 {
   "nombre": "Agua mineral",
   "descripcion": "Botella de agua sin gas",
-  "precio_base": 2.50,
+  "precio_base": 2000,
   "unidad_venta_id": 3,
   "stock_cantidad": 10,
   "disponible": true

@@ -1,0 +1,187 @@
+@baseUrl = http://127.0.0.1:8000
+
+### ==========================================
+### RELACIONES - Ejecutar en orden, después de productos.http
+### ==========================================
+
+### 1. Alta de categoría (201)
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Postres",
+  "descripcion": "Postres y dulces"
+}
+
+### 2. Alta de otra categoría (201)
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Bebidas",
+  "descripcion": "Bebidas sin alcohol"
+}
+
+### 3. ERROR 409 - nombre de categoría repetido
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Postres"
+}
+
+### 4. ERROR 422 - nombre de menos de 3 caracteres
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "ab"
+}
+
+### 5. Listar categorías (200)
+GET {{baseUrl}}/api/v1/categorias
+
+### 6. Filtro search (200, solo Postres)
+GET {{baseUrl}}/api/v1/categorias?search=post
+
+### 7. Detalle de categoría (200)
+GET {{baseUrl}}/api/v1/categorias/2
+
+### 8. Actualizar categoría (200)
+PUT {{baseUrl}}/api/v1/categorias/2
+Content-Type: application/json
+
+{
+  "nombre": "Postres",
+  "descripcion": "Postres, tortas y dulces"
+}
+
+### 9. ERROR 404 - categoría inexistente
+GET {{baseUrl}}/api/v1/categorias/999
+
+### ==========================================
+### RELACIÓN 1:N - UnidadMedida y Producto
+### ==========================================
+
+### 10. Crear producto: la respuesta trae la unidad anidada (201)
+POST {{baseUrl}}/api/v1/productos
+Content-Type: application/json
+
+{
+  "nombre": "Tiramisú",
+  "descripcion": "Porción individual",
+  "precio_base": 4.50,
+  "unidad_venta_id": 5,
+  "stock_cantidad": 10,
+  "disponible": true
+}
+
+### ==========================================
+### RELACIÓN N:N - Producto y Categoría
+### ==========================================
+
+### 11. Clasificar el producto 5 en Postres como principal (201)
+POST {{baseUrl}}/api/v1/productos/5/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2,
+  "es_principal": true
+}
+
+### 12. Clasificarlo en Bebidas como nueva principal (201)
+POST {{baseUrl}}/api/v1/productos/5/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 3,
+  "es_principal": true
+}
+
+### 13. Categorías del producto: Postres quedó en false y Bebidas en true (200)
+GET {{baseUrl}}/api/v1/productos/5/categorias
+
+### 14. ERROR 409 - clasificar dos veces en la misma categoría
+POST {{baseUrl}}/api/v1/productos/5/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2,
+  "es_principal": false
+}
+
+### 15. ERROR 404 - categoría inexistente
+POST {{baseUrl}}/api/v1/productos/5/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 999,
+  "es_principal": false
+}
+
+### 16. ERROR 404 - producto inexistente
+POST {{baseUrl}}/api/v1/productos/999/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2,
+  "es_principal": false
+}
+
+### 17. Filtro categoria_id del listado de productos (200, solo Tiramisú)
+GET {{baseUrl}}/api/v1/productos?categoria_id=3
+
+### 18. Detalle del producto con sus categorías (200)
+GET {{baseUrl}}/api/v1/productos/5
+
+### ==========================================
+### ANULACIÓN DE CATEGORÍA (RN-06 y RN-08)
+### ==========================================
+
+### 19. Anular la categoría Bebidas (204)
+DELETE {{baseUrl}}/api/v1/categorias/3
+
+### 20. El producto clasificado en ella sigue activo (200, activo true)
+GET {{baseUrl}}/api/v1/productos/5
+
+### 21. Categorías anuladas con el filtro activo=false (200)
+GET {{baseUrl}}/api/v1/categorias?activo=false
+
+### 22. ERROR 409 - anular una categoría ya anulada
+DELETE {{baseUrl}}/api/v1/categorias/3
+
+### 23. ERROR 409 - modificar una categoría anulada
+PUT {{baseUrl}}/api/v1/categorias/3
+Content-Type: application/json
+
+{
+  "nombre": "Bebidas",
+  "descripcion": "Cambio no permitido"
+}
+
+### 24. ERROR 409 - clasificar en una categoría anulada
+POST {{baseUrl}}/api/v1/productos/1/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 3,
+  "es_principal": false
+}
+
+### 25. ERROR 409 - clasificar un producto anulado
+POST {{baseUrl}}/api/v1/productos/3/categorias
+Content-Type: application/json
+
+{
+  "categoria_id": 2,
+  "es_principal": false
+}
+
+### 26. La categoría anulada liberó su nombre (201)
+POST {{baseUrl}}/api/v1/categorias
+Content-Type: application/json
+
+{
+  "nombre": "Bebidas",
+  "descripcion": "Bebidas sin alcohol"
+}
