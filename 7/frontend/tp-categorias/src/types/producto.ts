@@ -1,9 +1,9 @@
-export type Producto = {
+export interface Producto  {
     id: number;
     nombre: string;
     descripcion: string;
     precio_base: number;
-    imagen_url: string[];
+    imagenes_url: string[];
     disponible:boolean;
 }
 
