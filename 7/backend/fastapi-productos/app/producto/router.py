@@ -46,7 +46,7 @@ def detalle_producto(session:SessionDep,id: int = Path(..., gt=0)):
 # Método: PUT | Endpoint: /productos/{id} | Estado: 200 OK
 # ---------------------------------------------------------
 @router.put(
-    "/{id}", response_model=schemas.ProductoRead, status_code=status.HTTP_204_OK
+    "/{id}", response_model=schemas.ProductoRead, status_code=status.HTTP_200_OK
 )
 def actualizar_producto(producto: schemas.ProductoCreate, session: SessionDep,id: int = Path(..., gt=0)):
     # Usamos ProductoCreate porque es un reemplazo total (exige todos los campos)
