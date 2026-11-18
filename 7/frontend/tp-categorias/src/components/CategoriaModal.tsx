@@ -1,9 +1,10 @@
-import type { FormEvent } from 'react'
+import { useEffect, type FormEvent } from 'react'
 import { useForm } from '../hooks/useForm'
 import type { Categoria } from '../types/categoria'
 
 type CategoriaModalProps = {
   categoriaEditando: Categoria | null
+  isOpen: boolean
   onSubmit: (data: { nombre: string; descripcion: string }) => void
   onCancel: () => void
 }
@@ -12,38 +13,35 @@ type CategoriaModalProps = {
 // callbacks (onSubmit, onCancel) y no tiene lógica de negocio propia. Su
 // estado interno lo maneja useCategoriasForm.
 function CategoriaModal({
-
+  isOpen,
   categoriaEditando,
   onSubmit,
   onCancel,
 }: CategoriaModalProps) {
-   const { formState, handleChange } = useForm({
+     const { formState, handleChange, setFormValues, resetForm } = useForm({
     nombre: categoriaEditando?.nombre ?? '',
     descripcion: categoriaEditando?.descripcion ?? '',
   })
 
-//   // Al abrir el modal: si hay una categoría para editar, precarga sus datos
-//   // con setFormValues; si no, deja el formulario vacío para crear una nueva.
-//   useEffect(() => {
-//     if (categoriaEditando) {
-//       setFormValues({
-//         nombre: categoriaEditando.nombre,
-//         descripcion: categoriaEditando.descripcion,
-//       })
-//     } else {
-//       resetForm()
-//     }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [categoriaEditando, isOpen])
+  useEffect(() => {
+    if (categoriaEditando) {
+      setFormValues({
+        nombre: categoriaEditando.nombre,
+        descripcion: categoriaEditando.descripcion,
+      })
+    } else {
+      resetForm()
+    }
+  }, [categoriaEditando, isOpen])
 
-//   if (!isOpen) return null
+  if (!isOpen) return null
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     onSubmit(formState)
   }
 
- return (
+  return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50">
       <form className="w-full max-w-md rounded-lg bg-white p-6" onSubmit={handleSubmit}>
         <h3 className="mb-4 text-xl font-bold">

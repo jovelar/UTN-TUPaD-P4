@@ -1,110 +1,22 @@
-
-import { useEffect, useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import CategoriaList from './components/CategoriaList'
-import CategoriaModal from './components/CategoriaModal'
-import type { Categoria } from './types/categoria'
-
-const API_URL = 'http://localhost:8000/categorias'
+import CategoriasPage from './pages/CategoriasPage'
+import ProductsPage from './pages/ProductsPage'
 
 function App() {
-  const [categorias, setCategorias] = useState<Categoria[]>([])
-  const [modalAbierto, setModalAbierto] = useState(false)
-  const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(
-    null,
-  )
-
-  const cargarCategorias = async () => {
-    const response = await fetch(`${API_URL}/?limit=50`)
-    const data: Categoria[] = await response.json()
-    setCategorias(data)
-  }
-
-  useEffect(() => {
-    cargarCategorias()
-  }, [])
-
-  const handleCreate = async (data: { nombre: string; descripcion: string }) => {
-    await fetch(`${API_URL}/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    await cargarCategorias()
-  }
-
-  const handleUpdate = async (
-    id: number,
-    data: { nombre: string; descripcion: string },
-  ) => {
-    await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    await cargarCategorias()
-  }
-
-  const handleDelete = async (id: number) => {
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-    await cargarCategorias()
-  }
-
-  const abrirParaCrear = () => {
-    setCategoriaEditando(null)
-    setModalAbierto(true)
-  }
-
-  const abrirParaEditar = (categoria: Categoria) => {
-    setCategoriaEditando(categoria)
-    setModalAbierto(true)
-  }
-
-  const cerrarModal = () => {
-    setModalAbierto(false)
-    setCategoriaEditando(null)
-  }
-
-  const handleSubmit = async (data: { nombre: string; descripcion: string }) => {
-    if (categoriaEditando) {
-      await handleUpdate(categoriaEditando.id, data)
-    } else {
-      await handleCreate(data)
-    }
-    cerrarModal()
-  }
-
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar titulo="Gestión de Categorías" />
-      <main className="mx-auto max-w-5xl p-6">
-        <button
-          type="button"
-          onClick={abrirParaCrear}
-          className="mb-6 rounded bg-green-600 px-4 py-2 text-white"
-        >
-          Nueva categoría
-        </button>
-        <CategoriaList
-          categorias={categorias}
-          onEdit={abrirParaEditar}
-          onDelete={handleDelete}
-        />
-      </main>
-      {modalAbierto && (
-        <CategoriaModal
-          categoriaEditando={categoriaEditando}
-          onSubmit={handleSubmit}
-          onCancel={cerrarModal}
-        />
-      )}
+      <Navbar titulo="Food Store" />
+      <Routes>
+        <Route path="/" element={<CategoriasPage />} />
+        <Route path="/categorias" element={<CategoriasPage />} />
+        <Route path="/productos" element={<ProductsPage />} />
+      </Routes>
     </div>
   )
 }
 
 export default App
-
-
 
 
 // import { useState } from 'react'

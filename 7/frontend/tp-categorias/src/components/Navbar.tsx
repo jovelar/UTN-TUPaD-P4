@@ -1,14 +1,14 @@
+import { Link } from "react-router-dom"
 type NavBarProps = {
     titulo: string
 }
 
-// Componente de presentación: no tiene estado propio. Recibe `count` por
-// props y lo muestra. El estado vive en el padre (Counter) y los hijos
-// reciben sólo los datos que necesitan para renderizar.
 function Navbar({ titulo }: NavBarProps) {
   return (
-    <nav className="bg-blue-600 px-6 py-4 text-white">
+    <nav className="bg-blue-600 px-6 py-4 text-white flex items-center gap-6">
       <h1 className="text-xl font-bold">{titulo}</h1>
+      <Link to="/categorias">Categorias</Link>
+      <Link to="/productos">Productos</Link>
     </nav>
   )
 }
