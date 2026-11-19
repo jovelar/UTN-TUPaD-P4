@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:8000
+
+### Crear (201)
+POST {{baseUrl}}/ingredientes/
+Content-Type: application/json
+
+{ "nombre": "Queso" }
+
+### Listar (200)
+GET {{baseUrl}}/ingredientes/
+
+### Editar (200)
+PUT {{baseUrl}}/ingredientes/1
+Content-Type: application/json
+
+{ "nombre": "Queso muzzarella" }
+
+### ERROR 422 - nombre solo espacios (RN-10)
+POST {{baseUrl}}/ingredientes/
+Content-Type: application/json
+
+{ "nombre": "   " }
+
+### ERROR 404 - inexistente (RN-11)
+PUT {{baseUrl}}/ingredientes/999
+Content-Type: application/json
+
+{ "nombre": "X" }
+
+### Eliminar (204)
+DELETE {{baseUrl}}/ingredientes/1
+
+### ERROR 404 - ya eliminado
+DELETE {{baseUrl}}/ingredientes/1

@@ -6,6 +6,9 @@ from app.categoria.model import Categoria
 from app.producto.router import router as producto_router
 from app.categoria.router import router as categoria_router
 from app.pedido.model import Pedido, DetallePedido   
+from app.pedido.router import router as pedido_router
+from app.ingredientes.model import Ingrediente
+from app.ingredientes.router import router as ingrediente_router
 
 
 def create_app() -> FastAPI:
@@ -17,9 +20,10 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
+    app.include_router(pedido_router)
     app.include_router(producto_router)
     app.include_router(categoria_router)
+    app.include_router(ingrediente_router)
 
     @app.on_event("startup")
     def on_startup():
