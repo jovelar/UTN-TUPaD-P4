@@ -21,7 +21,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.uow import UnitOfWork, get_uow
 from app.core.deps import get_current_active_user, require_role
-from app.modules.usuarios.model import UserCreate, UserPublic
+from app.modules.usuarios.model import UserCreate, UserPublic, RolPublic
 from app.modules.usuarios.service import UsuarioService
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -127,3 +127,19 @@ def activate_user(
     with uow:
         service = UsuarioService(uow)
         return service.set_disabled(user_id, disabled=False)
+
+
+
+# ─── Catálogo de roles (solo lectura) ────────────────────────────────────────
+
+roles_router = APIRouter(prefix="/api/v1/roles", tags=["roles"])
+
+
+@roles_router.get("/", response_model=list[RolPublic])
+def list_roles(
+    _user: Annotated[UserPublic, Depends(get_current_active_user)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+):
+    with uow:
+        service = UsuarioService(uow)
+        return service.list_roles()

@@ -70,6 +70,11 @@ class UserPublic(SQLModel):
     activo:   bool
 
 
+class RolPublic(SQLModel):
+    """Vista pública del rol (catálogo de solo lectura)."""
+    id:          int
+    nombre:      str
+    descripcion: Optional[str] = None
 class Token(SQLModel):
     """Respuesta del endpoint /token."""
     access_token: str

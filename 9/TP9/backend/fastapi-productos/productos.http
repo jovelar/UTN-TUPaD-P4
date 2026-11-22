@@ -1,157 +1,258 @@
-@baseUrl = http://localhost:8000
+# =============================================================================
+# CRUD de Categorías, Productos y ProductoCategoria — REST Client
+# Lectura: cualquier usuario autenticado · Escritura: solo rol admin
+# =============================================================================
+#
+# Extensión requerida: REST Client (Huachao Mao) para VS Code.
+#
+# Preparación:
+#   1. uvicorn app.main:app --reload
+#   2. python -m app.db.seed          ← crea los roles y los usuarios admin y juan
+#
+# Sesión: el login guarda la cookie access_token y REST Client la envía sola
+# en las peticiones siguientes. Para cambiar de usuario se vuelve a hacer login.
+#
+# IDs: las peticiones con "# @name" guardan la respuesta; las siguientes usan
+# su id (por ejemplo {{pizzas.response.body.$.id}}). Ejecutar en orden.
+#
+# Convención:
+#   "Esperado"       = respuesta exitosa
+#   "Error esperado" = el comportamiento correcto es ese error
+# =============================================================================
 
-### ============ CATEGORÍAS ============
+@baseUrl       = http://localhost:8000
+@authApi       = {{baseUrl}}/api/v1/auth
+@categoriasApi = {{baseUrl}}/api/v1/categorias
+@productosApi  = {{baseUrl}}/api/v1/productos
 
-### Crear categoría 1
-POST {{baseUrl}}/categorias/
+
+# =============================================================================
+# BLOQUE 1 — Sin sesión: todo responde 401
+# =============================================================================
+
+### 1a. Error esperado: Listar categorías sin sesión → 401
+GET {{categoriasApi}}/
+
+### 1b. Error esperado: Listar productos sin sesión → 401
+GET {{productosApi}}/
+
+
+# =============================================================================
+# BLOQUE 2 — Usuario con rol user: lee, pero no escribe (403)
+# =============================================================================
+
+### 2a. Login como juan (rol user)
+POST {{authApi}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username=juan@example.com&password=Juan1234!
+
+### 2b. Esperado: juan lista categorías → 200
+GET {{categoriasApi}}/
+
+### 2c. Error esperado: juan crea una categoría → 403
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "No permitida", "descripcion": "juan no es admin" }
+
+### 2d. Error esperado: juan crea un producto → 403
+POST {{productosApi}}/
+Content-Type: application/json
+
+{ "nombre": "No permitido", "precio_base": 100 }
+
+
+# =============================================================================
+# BLOQUE 3 — Login como admin (reemplaza la cookie de juan)
+# =============================================================================
+
+### 3. Login como admin
+POST {{authApi}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@example.com&password=Admin1234!
+
+
+# =============================================================================
+# BLOQUE 4 — Categorías
+# =============================================================================
+
+### 4a. Esperado: Crear "Pizzas" → 201
+# @name pizzas
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "Pizzas", "descripcion": "Pizzas a la piedra" }
+
+### 4b. Esperado: Crear "Bebidas" → 201
+# @name bebidas
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "Bebidas", "descripcion": "Gaseosas y aguas" }
+
+### 4c. Esperado: Crear "Postres" → 201
+# @name postres
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "Postres", "descripcion": "Helados y tortas" }
+
+### 4d. Error esperado: Nombre repetido → 409
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "Pizzas", "descripcion": "Duplicada" }
+
+### 4e. Error esperado: Nombre vacío → 422
+POST {{categoriasApi}}/
+Content-Type: application/json
+
+{ "nombre": "", "descripcion": "Sin nombre" }
+
+### 4f. Esperado: Listar → 200
+GET {{categoriasApi}}/
+
+### 4g. Esperado: Obtener "Pizzas" por ID → 200
+GET {{categoriasApi}}/{{pizzas.response.body.$.id}}
+
+### 4h. Error esperado: ID inexistente → 404
+GET {{categoriasApi}}/999999
+
+### 4i. Esperado: Cambiar solo la descripción (PATCH) → 200
+PATCH {{categoriasApi}}/{{bebidas.response.body.$.id}}
+Content-Type: application/json
+
+{ "descripcion": "Gaseosas, aguas y jugos" }
+
+### 4j. Error esperado: Nombre que ya existe → 409
+PATCH {{categoriasApi}}/{{postres.response.body.$.id}}
+Content-Type: application/json
+
+{ "nombre": "Pizzas" }
+
+
+# =============================================================================
+# BLOQUE 5 — Productos
+# =============================================================================
+
+### 5a. Esperado: Crear "Muzzarella" → 201
+# @name muzza
+POST {{productosApi}}/
 Content-Type: application/json
 
 {
-  "nombre": "Electrónica",
-  "descripcion": "Dispositivos y accesorios electrónicos"
-}
-
-### Crear categoría 2
-POST {{baseUrl}}/categorias/
-Content-Type: application/json
-
-{
-  "nombre": "Hogar",
-  "descripcion": "Artículos para el hogar"
-}
-
-### Listar categorías
-GET {{baseUrl}}/categorias/
-
-### Obtener categoría por id
-GET {{baseUrl}}/categorias/1
-
-### Actualizar categoría
-PUT {{baseUrl}}/categorias/1
-Content-Type: application/json
-
-{
-  "nombre": "Electrónica y Tecnología",
-  "descripcion": "Dispositivos, accesorios y tecnología"
-}
-
-### ERROR 404 - categoría inexistente
-GET {{baseUrl}}/categorias/999
-
-### ERROR 422 - body inválido (nombre vacío)
-POST {{baseUrl}}/categorias/
-Content-Type: application/json
-
-{
-  "nombre": "",
-  "descripcion": "Sin nombre"
-}
-
-### ============ PRODUCTOS ============
-
-### Crear producto
-POST {{baseUrl}}/productos/
-Content-Type: application/json
-
-{
-  "nombre": "Notebook",
-  "descripcion": "Notebook 15 pulgadas",
-  "precio_base": 850000,
-  "imagenes_url": [
-    "https://ejemplo.com/notebook-1.jpg",
-    "https://ejemplo.com/notebook-2.jpg"
-  ],
+  "nombre": "Muzzarella",
+  "descripcion": "Salsa de tomate y muzzarella",
+  "precio_base": 5500.50,
+  "imagenes_url": ["https://ejemplo.com/muzza.jpg"],
   "disponible": true
 }
 
-### Listar productos
-GET {{baseUrl}}/productos/
-
-### Obtener producto por id
-GET {{baseUrl}}/productos/1
-
-### Actualizar producto
-PUT {{baseUrl}}/productos/1
+### 5b. Esperado: Crear "Agua mineral" → 201
+# @name agua
+POST {{productosApi}}/
 Content-Type: application/json
 
-{
-  "nombre": "Notebook Pro",
-  "descripcion": "Notebook 15 pulgadas, 16GB RAM",
-  "precio_base": 950000,
-  "imagenes_url": ["https://ejemplo.com/notebook-pro.jpg"],
-  "disponible": false
-}
+{ "nombre": "Agua mineral", "precio_base": 1200 }
 
-### ERROR 404 - producto inexistente
-GET {{baseUrl}}/productos/999
-
-### ERROR 422 - precio negativo
-POST {{baseUrl}}/productos/
+### 5c. Error esperado: Precio negativo → 422
+POST {{productosApi}}/
 Content-Type: application/json
 
-{
-  "nombre": "Inválido",
-  "descripcion": "Precio negativo",
-  "precio_base": -10,
-  "imagenes_url": [],
-  "disponible": true
-}
+{ "nombre": "Inválido", "precio_base": -10 }
 
-### ============ PRODUCTO - CATEGORÍA ============
-
-### Asignar categoría 1 al producto 1
-POST {{baseUrl}}/productos/1/categorias
+### 5d. Error esperado: Precio con más de 2 decimales → 422
+POST {{productosApi}}/
 Content-Type: application/json
 
-{
-  "categoria_id": 1
-}
+{ "nombre": "Inválido", "precio_base": 10.555 }
 
-### Asignar categoría 2 al producto 1
-POST {{baseUrl}}/productos/1/categorias
+### 5e. Esperado: Listar → 200 (cada producto trae sus categorías)
+GET {{productosApi}}/
+
+### 5f. Esperado: Cambiar solo el precio (PATCH) → 200
+PATCH {{productosApi}}/{{muzza.response.body.$.id}}
 Content-Type: application/json
 
-{
-  "categoria_id": 2
-}
+{ "precio_base": 6000 }
 
-### Listar categorías del producto 1
-GET {{baseUrl}}/productos/1/categorias
+### 5g. Error esperado: ID inexistente → 404
+GET {{productosApi}}/999999
 
-### ERROR 409 - asignar dos veces la misma
-POST {{baseUrl}}/productos/1/categorias
+
+# =============================================================================
+# BLOQUE 6 — ProductoCategoria (asignar y quitar categorías)
+# =============================================================================
+
+### 6a. Esperado: Asignar "Pizzas" a "Muzzarella" como principal → 201
+POST {{productosApi}}/{{muzza.response.body.$.id}}/categorias
 Content-Type: application/json
 
-{
-  "categoria_id": 1
-}
+{ "categoria_id": {{pizzas.response.body.$.id}}, "es_principal": true }
 
-### ERROR 404 - categoría inexistente
-POST {{baseUrl}}/productos/1/categorias
+### 6b. Esperado: Asignar "Postres" a "Muzzarella" → 201
+POST {{productosApi}}/{{muzza.response.body.$.id}}/categorias
 Content-Type: application/json
 
-{
-  "categoria_id": 999
-}
+{ "categoria_id": {{postres.response.body.$.id}} }
 
-### ERROR 404 - producto inexistente
-POST {{baseUrl}}/productos/999/categorias
+### 6c. Esperado: Asignar "Bebidas" a "Agua mineral" como principal → 201
+POST {{productosApi}}/{{agua.response.body.$.id}}/categorias
 Content-Type: application/json
 
-{
-  "categoria_id": 1
-}
+{ "categoria_id": {{bebidas.response.body.$.id}}, "es_principal": true }
 
-### Quitar categoría 2 del producto 1
-DELETE {{baseUrl}}/productos/1/categorias/2
+### 6d. Error esperado: Asignar dos veces la misma → 409
+POST {{productosApi}}/{{muzza.response.body.$.id}}/categorias
+Content-Type: application/json
 
-### ERROR 404 - quitar un vínculo que no existe
-DELETE {{baseUrl}}/productos/1/categorias/2
+{ "categoria_id": {{pizzas.response.body.$.id}} }
 
-### ============ ELIMINAR ============
+### 6e. Error esperado: Categoría inexistente → 404
+POST {{productosApi}}/{{muzza.response.body.$.id}}/categorias
+Content-Type: application/json
 
-### Eliminar producto
-DELETE {{baseUrl}}/productos/1
+{ "categoria_id": 999999 }
 
-### Eliminar categoría
-DELETE {{baseUrl}}/categorias/2
+### 6f. Esperado: Quitar "Postres" de "Muzzarella" → 204 (borra la fila de enlace)
+DELETE {{productosApi}}/{{muzza.response.body.$.id}}/categorias/{{postres.response.body.$.id}}
+
+### 6g. Error esperado: Quitar un vínculo que no existe → 404
+DELETE {{productosApi}}/{{muzza.response.body.$.id}}/categorias/{{postres.response.body.$.id}}
+
+### 6h. Esperado: Ver "Muzzarella" con sus categorías → 200
+GET {{productosApi}}/{{muzza.response.body.$.id}}
+
+
+# =============================================================================
+# BLOQUE 7 — Borrado lógico (DELETE completa deleted_at)
+# =============================================================================
+
+### 7a. Esperado: Eliminar "Agua mineral" → 204
+DELETE {{productosApi}}/{{agua.response.body.$.id}}
+
+### 7b. Error esperado: Obtenerlo después de eliminarlo → 404
+GET {{productosApi}}/{{agua.response.body.$.id}}
+
+### 7c. Esperado: Eliminar "Postres" → 204
+DELETE {{categoriasApi}}/{{postres.response.body.$.id}}
+
+### 7d. Error esperado: Eliminarla de nuevo → 404
+DELETE {{categoriasApi}}/{{postres.response.body.$.id}}
+
+### 7e. Esperado: Los listados ya no traen los eliminados → 200
+# En la base siguen existiendo, con deleted_at completo.
+GET {{productosApi}}/
+
+
+# =============================================================================
+# BLOQUE 8 — Cierre de sesión
+# =============================================================================
+
+### 8a. Esperado: Logout → 200 (borra la cookie)
+POST {{authApi}}/logout
+
+### 8b. Error esperado: Eliminar sin sesión → 401
+DELETE {{categoriasApi}}/{{pizzas.response.body.$.id}}

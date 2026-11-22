@@ -1,0 +1,178 @@
+# =============================================================================
+# Seguridad en FastAPI — REST Client
+# OAuth2 Password Flow · JWT en cookie HttpOnly · Hashing · Roles (RBAC)
+# =============================================================================
+#
+# Extensión requerida: REST Client (Huachao Mao) para VS Code.
+#
+# Preparación:
+#   1. uvicorn app.main:app --reload
+#   2. python -m app.db.seed          ← crea los roles y los usuarios admin y juan
+#
+# Cómo funciona la sesión:
+#   El login (POST /token) no devuelve el token en el cuerpo: lo guarda en la
+#   cookie HttpOnly "access_token". REST Client recuerda esa cookie y la envía
+#   sola en las peticiones siguientes (opción rememberCookiesForSubsequentRequests,
+#   activada por defecto). Para cambiar de usuario se vuelve a hacer login
+#   o se cierra la sesión (bloque 5).
+#
+# Convención:
+#   "Esperado"       = respuesta exitosa
+#   "Error esperado" = el comportamiento correcto es ese error
+# =============================================================================
+
+@baseUrl = http://localhost:8000
+@api     = {{baseUrl}}/api/v1/auth
+
+
+# =============================================================================
+# BLOQUE 0 — Verificación inicial
+# =============================================================================
+
+### 0. Health check
+# Esperado: HTTP 200  { "status": "ok", "version": "1.0.0" }
+GET {{baseUrl}}/health
+
+
+# =============================================================================
+# BLOQUE 1 — Registro (POST /register)
+# bcrypt hashea la contraseña antes de guardarla; la respuesta usa UserPublic,
+# de modo que password_hash no aparece. Asigna el rol user. Email repetido → 409.
+# =============================================================================
+
+### 1a. Esperado: Registrar un usuario común → 201, "roles": ["user"]
+POST {{api}}/register
+Content-Type: application/json
+
+{
+  "nombre":   "María",
+  "apellido": "García",
+  "email":    "maria@example.com",
+  "celular":  "2610000000",
+  "password": "Maria1234!"
+}
+
+### 1b. Error esperado: Email repetido → 409 Conflict
+POST {{api}}/register
+Content-Type: application/json
+
+{
+  "nombre":   "Otra",
+  "apellido": "María",
+  "email":    "maria@example.com",
+  "password": "Maria1234!"
+}
+
+### 1c. Error esperado: Contraseña de menos de 8 caracteres → 422
+POST {{api}}/register
+Content-Type: application/json
+
+{
+  "nombre":   "Contraseña",
+  "apellido": "Corta",
+  "email":    "corta@example.com",
+  "password": "123"
+}
+
+### 1d. Error esperado: Email con formato inválido → 422
+POST {{api}}/register
+Content-Type: application/json
+
+{
+  "nombre":   "Email",
+  "apellido": "Inválido",
+  "email":    "no-es-un-email",
+  "password": "Valido1234!"
+}
+
+
+# =============================================================================
+# BLOQUE 2 — Login (POST /token, OAuth2 Password Flow)
+# El cuerpo va como formulario (application/x-www-form-urlencoded), no como JSON.
+# Si las credenciales son correctas, la respuesta trae Set-Cookie: access_token.
+# =============================================================================
+
+### 2a. Esperado: Login de usuario común → 200 + cookie access_token
+# { "mensaje": "Login exitoso. Sesión iniciada." }
+POST {{api}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username=juan@example.com&password=Juan1234!
+
+### 2b. Error esperado: Contraseña incorrecta → 401 "Credenciales incorrectas"
+# El mensaje es el mismo si el usuario no existe: no revela qué dato falló.
+POST {{api}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username=juan@example.com&password=incorrecta
+
+### 2c. Error esperado: Datos enviados como JSON → 422 (OAuth2 exige formulario)
+POST {{api}}/token
+Content-Type: application/json
+
+{ "username": "juan@example.com", "password": "Juan1234!" }
+
+
+# =============================================================================
+# BLOQUE 3 — Rutas protegidas (requieren la cookie del bloque 2a)
+# Cadena: cookie → get_current_user (firma, expiración, usuario y roles vigentes)
+#         → get_current_active_user (cuenta no desactivada: deleted_at nulo)
+# =============================================================================
+
+### 3a. Esperado: GET /me → datos del usuario autenticado
+GET {{api}}/me
+
+### 3b. Esperado: GET /privado → cualquier usuario autenticado
+GET {{api}}/privado
+
+### 3c. Error esperado: Cookie con firma manipulada → 401
+# El payload es inventado y la firma no coincide.
+GET {{api}}/me
+Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhdGFjYW50ZSIsInJvbGUiOiJhZG1pbiIsInR5cGUiOiJhY2Nlc3MifQ.firma_falsa
+
+### 3d. Error esperado: Token en el encabezado Authorization → 401
+# El proyecto solo acepta la cookie: el encabezado Bearer se ignora.
+# (Ejecutar después del bloque 5a, sin cookie guardada.)
+GET {{api}}/me
+Authorization: Bearer cualquier-token
+
+
+# =============================================================================
+# BLOQUE 4 — Control de acceso por roles (require_role sobre UsuarioRol)
+# 401 = no autenticado · 403 = autenticado sin el rol requerido
+# =============================================================================
+
+### 4a. Error esperado: Usuario común en una ruta de admin → 403
+# (con la sesión de juan del bloque 2a)
+GET {{api}}/admin/usuarios
+
+### 4b. Login como admin (reemplaza la cookie de juan)
+POST {{api}}/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@example.com&password=Admin1234!
+
+### 4c. Esperado: Admin lista los usuarios → 200
+GET {{api}}/admin/usuarios
+
+### 4d. Esperado: Admin desactiva al usuario 2 (juan) → 200, "activo": false
+# Completa deleted_at. Desde este momento, juan recibe 400 "Cuenta de usuario desactivada".
+POST {{api}}/admin/usuarios/2/desactivar
+
+### 4e. Esperado: Admin vuelve a activar al usuario 2 → 200, "activo": true
+# Vuelve deleted_at a nulo.
+POST {{api}}/admin/usuarios/2/activar
+
+### 4f. Error esperado: Usuario inexistente → 404
+POST {{api}}/admin/usuarios/9999/desactivar
+
+
+# =============================================================================
+# BLOQUE 5 — Cierre de sesión
+# =============================================================================
+
+### 5a. Esperado: Logout → 200; el servidor borra la cookie access_token
+POST {{api}}/logout
+
+### 5b. Error esperado: /me sin sesión → 401
+GET {{api}}/me

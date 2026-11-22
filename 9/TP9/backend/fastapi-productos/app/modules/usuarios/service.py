@@ -19,7 +19,7 @@ from fastapi import HTTPException, status
 from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.core.uow import UnitOfWork
-from app.modules.usuarios.model import Usuario, UserCreate, Token, UserPublic
+from app.modules.usuarios.model import Usuario, Rol, UserCreate, Token, UserPublic
 
 
 class UsuarioService:
@@ -106,3 +106,7 @@ class UsuarioService:
             )
         user.deleted_at = datetime.now(timezone.utc) if disabled else None
         return self._to_public(self.uow.usuarios.update(user))
+    
+    def list_roles(self) -> list[Rol]:
+        """Lista el catálogo de roles."""
+        return self.uow.usuarios.list_roles()

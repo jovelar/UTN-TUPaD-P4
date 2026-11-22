@@ -60,3 +60,7 @@ class UsuarioRepository(BaseRepository[Usuario]):
             .order_by(Rol.nombre)
         )
         return list(self.session.exec(consulta).all())
+    
+    
+    def list_roles(self) -> list[Rol]:
+        return list(self.session.exec(select(Rol).order_by(Rol.id)).all())
