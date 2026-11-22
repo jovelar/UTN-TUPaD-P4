@@ -1,15 +1,39 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar'
-import CategoriasPage from './pages/CategoriasPage'
+import ProtectedRoute from './components/ProtectedRoute'
+import CategoriesPage from './pages/CategoriesPage'
 import ProductsPage from './pages/ProductsPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import UnauthorizedPage from './pages/UnauthorizedPage'
+import AdminUsersPage from './pages/AdminUsersPage'
+import { useAuthStore } from './store/authStore'
+
 function App() {
+  const checkSession = useAuthStore((s) => s.checkSession)
+
+  useEffect(() => {
+    checkSession()             // GET /auth/me con la cookie
+  }, [checkSession])
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar titulo="Food Store" />
       <Routes>
-        <Route path="/" element={<CategoriasPage />} />
-        <Route path="/categorias" element={<CategoriasPage />} />
-        <Route path="/productos" element={<ProductsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/categories" replace />} />
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        </Route>
       </Routes>
     </div>
   )

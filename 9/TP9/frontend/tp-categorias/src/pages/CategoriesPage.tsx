@@ -12,10 +12,12 @@ import {
 import CategoriaList from '../components/CategoriaList'
 import CategoriaModal from '../components/CategoriaModal'
 import { Cargando, ErrorMensaje, Vacio } from '../components/Estados'
-import type { Categoria } from '../types/categoria'
-import { actualizarCategoria, crearCategoria, eliminarCategoria, getCategorias } from '../services/categoria'
+import type { Categoria, CategoriaInput } from '../types/categoria'
+import { categoriaService } from '../services/categoriaService'
+import { handleApiError } from '../api/handleApiError'
+import { useAuthStore } from '../store/authStore'
 
-type CategoriaFormValues = Omit<Categoria, 'id'>
+type CategoriaFormValues = CategoriaInput
 
 const valoresVacios: CategoriaFormValues = { nombre: '', descripcion: '' }
 const sinCategorias: Categoria[] = []
@@ -23,8 +25,9 @@ const sinCategorias: Categoria[] = []
 const input =
     'mt-1 w-full rounded border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
-function CategoriasPage() {
+function CategoriesPage() {
     const queryClient = useQueryClient()
+    const esAdmin = useAuthStore((s) => s.user?.roles.includes('admin') ?? false)
     const [modalAbierto, setModalAbierto] = useState(false)
     const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(null)
     const [sorting, setSorting] = useState<SortingState>([])
@@ -33,23 +36,23 @@ function CategoriasPage() {
     // ── Datos: TanStack Query ─────────────────────────────
     const { data = sinCategorias, isLoading, isError } = useQuery({
         queryKey: ['categorias'],
-        queryFn: getCategorias,
+        queryFn: categoriaService.listar,
     })
 
     const invalidar = () => queryClient.invalidateQueries({ queryKey: ['categorias'] })
 
     const crearMutation = useMutation({
-        mutationFn: crearCategoria,
+        mutationFn: categoriaService.crear,
         onSuccess: invalidar,
     })
 
     const actualizarMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: CategoriaFormValues }) => actualizarCategoria(id, data),
+        mutationFn: ({ id, data }: { id: number; data: CategoriaFormValues }) => categoriaService.actualizar(id, data),
         onSuccess: invalidar,
     })
 
     const eliminarMutation = useMutation({
-        mutationFn: eliminarCategoria,
+        mutationFn: categoriaService.eliminar,
         onSuccess: invalidar,
     })
 
@@ -113,6 +116,8 @@ function CategoriasPage() {
     const columns: ColumnDef<Categoria>[] = [
         { accessorKey: 'nombre', header: 'Nombre' },
         { accessorKey: 'descripcion', header: 'Descripción' },
+    ]
+    if (esAdmin) columns.push(
         {
             id: 'acciones',
             header: 'Acciones',
@@ -136,7 +141,7 @@ function CategoriasPage() {
                 </div>
             ),
         },
-    ]
+    )
 
     const table = useReactTable({
         data,
@@ -149,21 +154,24 @@ function CategoriasPage() {
         getPaginationRowModel: getPaginationRowModel(),
     })
 
-    const errorApi = (crearMutation.error ?? actualizarMutation.error)?.message ?? null
+    const errorMutacion = crearMutation.error ?? actualizarMutation.error
+    const errorApi = errorMutacion ? handleApiError(errorMutacion) : null
 
     return (
         <main className="mx-auto max-w-5xl p-6">
-            <button
-                type="button"
-                onClick={abrirParaCrear}
-                className="mb-6 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-            >
-                Nueva categoría
-            </button>
+            {esAdmin && (
+                <button
+                    type="button"
+                    onClick={abrirParaCrear}
+                    className="mb-6 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                >
+                    Nueva categoría
+                </button>
+            )}
 
             {eliminarMutation.error && (
                 <div className="mb-4">
-                    <ErrorMensaje mensaje={eliminarMutation.error.message} />
+                    <ErrorMensaje mensaje={handleApiError(eliminarMutation.error)} />
                 </div>
             )}
 
@@ -219,4 +227,4 @@ function CategoriasPage() {
     )
 }
 
-export default CategoriasPage
+export default CategoriesPage

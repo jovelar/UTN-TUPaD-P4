@@ -14,10 +14,12 @@
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.107.1",
     "@tanstack/react-table": "8",
+    "axios": "^1.21.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.5",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

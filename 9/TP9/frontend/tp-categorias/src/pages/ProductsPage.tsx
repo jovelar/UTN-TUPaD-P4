@@ -12,16 +12,12 @@ import {
 import ProductoList from '../components/ProductoList'
 import ProductoModal from '../components/ProductoModal'
 import { Cargando, ErrorMensaje, Vacio } from '../components/Estados'
-import type { Producto } from '../types/producto'
-import {
-    actualizarProducto,
-    crearProducto,
-    eliminarProducto,
-    getProductos,
-    type ProductoData,
-} from '../services/producto'
+import type { Producto, ProductoInput } from '../types/producto'
+import { productoService } from '../services/productoService'
+import { handleApiError } from '../api/handleApiError'
+import { useAuthStore } from '../store/authStore'
 
-const valoresVacios: ProductoData = {
+const valoresVacios: ProductoInput = {
     nombre: '',
     descripcion: '',
     precio_base: 0,
@@ -35,6 +31,7 @@ const input =
 
 function ProductsPage() {
     const queryClient = useQueryClient()
+    const esAdmin = useAuthStore((s) => s.user?.roles.includes('admin') ?? false)
     const [modalAbierto, setModalAbierto] = useState(false)
     const [productoEditando, setProductoEditando] = useState<Producto | null>(null)
     const [sorting, setSorting] = useState<SortingState>([])
@@ -43,23 +40,23 @@ function ProductsPage() {
     // ── Datos: TanStack Query ─────────────────────────────
     const { data = sinProductos, isLoading, isError } = useQuery({
         queryKey: ['productos'],
-        queryFn: getProductos,
+        queryFn: productoService.listar,
     })
 
     const invalidar = () => queryClient.invalidateQueries({ queryKey: ['productos'] })
 
     const crearMutation = useMutation({
-        mutationFn: crearProducto,
+        mutationFn: productoService.crear,
         onSuccess: invalidar,
     })
 
     const actualizarMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: ProductoData }) => actualizarProducto(id, data),
+        mutationFn: ({ id, data }: { id: number; data: ProductoInput }) => productoService.actualizar(id, data),
         onSuccess: invalidar,
     })
 
     const eliminarMutation = useMutation({
-        mutationFn: eliminarProducto,
+        mutationFn: productoService.eliminar,
         onSuccess: invalidar,
     })
 
@@ -110,7 +107,7 @@ function ProductsPage() {
         form.reset(
             {
                 nombre: producto.nombre,
-                descripcion: producto.descripcion,
+                descripcion: producto.descripcion ?? '',
                 precio_base: producto.precio_base,
                 imagenes_url: producto.imagenes_url,
                 disponible: producto.disponible,
@@ -143,6 +140,17 @@ function ProductsPage() {
             cell: ({ getValue }) => (getValue<boolean>() ? 'Sí' : 'No'),
         },
         {
+            id: 'categorias',
+            header: 'Categorías',
+            enableSorting: false,
+            cell: ({ row }) =>
+                row.original.categorias
+                    .map((c) => (c.es_principal ? `${c.nombre} (principal)` : c.nombre))
+                    .join(', ') || '—',
+        },
+    ]
+    if (esAdmin) columns.push(
+        {
             id: 'acciones',
             header: 'Acciones',
             enableSorting: false,
@@ -165,7 +173,7 @@ function ProductsPage() {
                 </div>
             ),
         },
-    ]
+    )
 
     const table = useReactTable({
         data,
@@ -178,21 +186,24 @@ function ProductsPage() {
         getPaginationRowModel: getPaginationRowModel(),
     })
 
-    const errorApi = (crearMutation.error ?? actualizarMutation.error)?.message ?? null
+    const errorMutacion = crearMutation.error ?? actualizarMutation.error
+    const errorApi = errorMutacion ? handleApiError(errorMutacion) : null
 
     return (
         <main className="mx-auto max-w-5xl p-6">
-            <button
-                type="button"
-                onClick={abrirParaCrear}
-                className="mb-6 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-            >
-                Nuevo producto
-            </button>
+            {esAdmin && (
+                <button
+                    type="button"
+                    onClick={abrirParaCrear}
+                    className="mb-6 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                >
+                    Nuevo producto
+                </button>
+            )}
 
             {eliminarMutation.error && (
                 <div className="mb-4">
-                    <ErrorMensaje mensaje={eliminarMutation.error.message} />
+                    <ErrorMensaje mensaje={handleApiError(eliminarMutation.error)} />
                 </div>
             )}
 
@@ -236,7 +247,7 @@ function ProductsPage() {
                             Descripción
                             <input
                                 className={input}
-                                value={f.state.value}
+                                value={f.state.value ?? ''}
                                 onBlur={f.handleBlur}
                                 onChange={(e) => f.handleChange(e.target.value)}
                             />
