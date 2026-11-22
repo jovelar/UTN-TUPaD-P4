@@ -1,24 +1,19 @@
-import os
-from typing import Annotated
-from fastapi import Depends
-from sqlmodel import SQLModel, Session, create_engine
-from dotenv import load_dotenv
-load_dotenv()
+"""
+Engine de SQLModel.
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg2://postgres:1234@localhost:5432/TP-8",
-)
-engine = create_engine(DATABASE_URL, echo=True)
+Usa PostgreSQL, configurado mediante variables de entorno.
+Las pruebas reemplazan el engine que usa el Unit of Work por SQLite en memoria.
+"""
+
+from sqlmodel import SQLModel, create_engine
+from app.core.config import settings
+
+engine = create_engine(settings.DATABASE_URL, echo=False)
 
 
-def create_db_and_tables():
+def create_all_tables() -> None:
+    """Crea las tablas registradas en SQLModel.metadata al arrancar la app."""
+    import app.modules.usuarios.model     # noqa: F401 — registra el modelo en metadata
+    import app.modules.categorias.model   # noqa: F401
+    import app.modules.productos.model    # noqa: F401
     SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]

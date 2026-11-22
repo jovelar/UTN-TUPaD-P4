@@ -18,13 +18,14 @@ class BaseRepository(Generic[ModelT]):
     Tipado:
     - Usa Generic[ModelT] para mantener tipado fuerte en cada repositorio concreto.
     """
+
     def __init__(self, session: Session, model: Type[ModelT]) -> None:
         """
         Inicializa el repositorio con una sesión de base de datos y el modelo asociado.
 
         Args:
             session (Session): Sesión activa de SQLModel/SQLAlchemy.
-                               Es inyectada generalmente por el UnitOfWork.
+            Es inyectada generalmente por el UnitOfWork.
             model (Type[ModelT]): Clase del modelo que este repositorio gestiona.
         """
         self.session = session
@@ -59,9 +60,7 @@ class BaseRepository(Generic[ModelT]):
         Nota:
             No garantiza orden si no se especifica explícitamente en la query.
         """
-        return self.session.exec(
-            select(self.model).offset(offset).limit(limit)
-        ).all()
+        return self.session.exec(select(self.model).offset(offset).limit(limit)).all()
 
     def add(self, instance: ModelT) -> ModelT:
         """
